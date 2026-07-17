@@ -4,6 +4,28 @@
 
 A reusable Codex Skill for taking game combat effects from visual direction to production-ready integration and acceptance. It captures a complete workflow proven on sword, fire, and water spell families: visual design, sprite-sheet production, semantic playback, configuration export, hidden GM testing, regression tests, and device-level visual review.
 
+## Visual references
+
+These storyboards demonstrate how the Skill maps gameplay semantics to motion and residue phases. They define visual direction and keyframe relationships; they are not single static textures to be stretched during playback.
+
+### Shaquan · Returning Edge: close-range arc
+
+The wind-up, formed slash, impact accent, and ink-like residue preserve a consistent silhouette and brightness hierarchy across the sequence.
+
+![Four-stage visual reference for Shaquan Returning Edge](docs/reference-images/01_shaquan_returning_edge.png)
+
+### Bingheqi · Frozen Domain: persistent ground zone
+
+The effect establishes its boundary, freezes the ground, grows ice formations, and settles into an animated persistent state.
+
+![Four-stage visual reference for Bingheqi Frozen Domain](docs/reference-images/04_bingheqi_frozen_domain.png)
+
+### Celestial Furnace Core: falling meteor impact
+
+The warning seal, airborne meteor, ground impact, and scorched residue each communicate anticipation, travel, hit, and cleanup.
+
+![Four-stage visual reference for Celestial Furnace Core](docs/reference-images/06_yunshi_celestial_furnace_core.png)
+
 ## Why this project exists
 
 Combat VFX often fail after otherwise-correct assets are connected to gameplay: projectiles are stretched instead of moved, trails detach from their parent, falling effects appear inside enemies, impacts freeze on their last frame, and bright textures become white blowouts. This Skill treats combat mechanics and presentation as separate systems so those problems can be fixed without changing damage, targeting, collision, penetration, buffs, or timing.
@@ -42,6 +64,7 @@ references/runtime-integration.md     Motion archetypes and visual-state contrac
 references/config-and-export.md       Configuration and table export workflow
 references/qa-and-acceptance.md       Automated and visual acceptance criteria
 assets/effect-manifest.example.json   Reusable effect manifest template
+docs/reference-images/                Combat VFX storyboard images used by the repository overview
 scripts/validate_effect_manifest.mjs  Deterministic manifest validator
 ```
 

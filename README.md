@@ -4,6 +4,28 @@
 
 这是一个可复用的 Codex Skill，用于将游戏战斗特效从视觉定位推进到可接入、可配置、可测试和可验收的最终状态。流程已经在剑、火、水三类咒法中完成验证，覆盖视觉设计、序列帧资源制作、语义化播放、配置导出、隐藏 GM 测试、回归测试和真机视觉验收。
 
+## 视觉参考图
+
+以下分镜展示了本 Skill 对战斗语义、运动过程和残留阶段的设计要求。参考图用于确定视觉方向与关键帧关系，不应被当作一张静态贴图直接拉伸播放。
+
+### 沙拳·回锋：近身范围剑气
+
+从起势、剑气成形、命中爆点到墨色余韵，主体轮廓和亮度层级在连续阶段中保持一致。
+
+![沙拳·回锋近身剑气四阶段视觉参考](docs/reference-images/01_shaquan_returning_edge.png)
+
+### 冰河气·封冻界：持续地面领域
+
+领域依次建立边界、冻结地面、生成冰晶并进入持续状态，地面效果在生效期间保持动态变化。
+
+![冰河气·封冻界持续领域四阶段视觉参考](docs/reference-images/04_bingheqi_frozen_domain.png)
+
+### 陨石·天炉心：天降与落地爆发
+
+预警法阵、空中陨石、落地爆发和焦黑残留分别承担提示、飞行、命中和收尾语义。
+
+![陨石·天炉心天降爆发四阶段视觉参考](docs/reference-images/06_yunshi_celestial_furnace_core.png)
+
 ## 项目目标
 
 很多特效在素材本身正确的情况下，接入游戏后仍会出现问题：飞行物被持续拉长、尾迹与主体分离、天降特效从怪物身体出现、命中特效停留在最后一帧、亮色素材显示成整片白光。本 Skill 将战斗机制和视觉表现拆分为独立系统，使这些问题可以在不改变伤害、目标选择、碰撞、穿透、Buff 和时间机制的情况下得到修正。
@@ -42,6 +64,7 @@ references/runtime-integration.md     播放模型与视觉状态协议
 references/config-and-export.md       配置表和导表工作流
 references/qa-and-acceptance.md       自动化与视觉验收标准
 assets/effect-manifest.example.json   可复用的特效清单模板
+docs/reference-images/                仓库说明使用的战斗特效分镜参考图
 scripts/validate_effect_manifest.mjs  确定性特效清单校验工具
 ```
 
