@@ -1,0 +1,25 @@
+{
+  "schemaVersion": 1,
+  "effects": [
+    {
+      "key": "sword_lane_sunder",
+      "element": "sword",
+      "visualArchetype": "moving-front",
+      "layers": {
+        "telegraph": { "file": "lane_sunder_ink.png", "frames": 4 },
+        "body": { "file": "lane_sunder_sword.png", "frames": 8 },
+        "impact": { "file": "lane_sunder_hit.png", "frames": 4 },
+        "residue": { "file": "lane_sunder_residue.png", "frames": 4 }
+      },
+      "scale": 1,
+      "offsetX": 0,
+      "offsetY": 0,
+      "trailLength": 80,
+      "acceptance": [
+        "body remains fixed size while moving",
+        "residue follows behind the body",
+        "impact expires once at the ground anchor"
+      ]
+    }
+  ]
+}
