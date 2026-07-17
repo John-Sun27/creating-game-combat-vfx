@@ -34,3 +34,14 @@ test('resource production emits preview metadata beside runtime assets automatic
 test('preview guidance keeps close-range sprite-sheet slashes anchored', () => {
   assert.match(previewWorkflow, /close-range-slash.*anchored slash sequence/i);
 });
+
+test('bilingual docs explain project defaults and non-mutating manual overrides', () => {
+  assert.match(readmeZh, /项目默认/);
+  assert.match(readmeZh, /手动覆盖/);
+  assert.match(readmeZh, /不会修改.*文件/);
+  assert.match(readmeEn, /project default/i);
+  assert.match(readmeEn, /manual override/i);
+  assert.match(readmeEn, /does not modify.*files/i);
+  assert.match(previewWorkflow, /manifest.*user overrides/i);
+  assert.match(previewWorkflow, /final.*in-game validation/i);
+});

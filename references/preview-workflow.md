@@ -10,6 +10,8 @@ Make the project's build or export pipeline emit `effect-manifest.preview.json` 
 
 Reuse the structure from `assets/effect-manifest.example.json`. Preserve each effect's `visualArchetype`, frames, scale, and offsets so preview and runtime consume the same intent. Single-frame telegraph and residue support layers are valid; body animation must satisfy its archetype minimum and impact must contain at least four frames.
 
+Treat the manifest preview profile as the project default. Resolve display settings in this order: generic fallback, archetype profile, manifest profile, then temporary user overrides. A user override changes only browser state and must never write back to the manifest or PNG resources.
+
 ## Rendering and motion
 
 Render PNG sprite layers as DOM elements with CSS backgrounds and transforms. Do not draw effects programmatically on Canvas. Play the complete telegraph, body, impact, and residue lifecycle.
@@ -30,6 +32,8 @@ Map archetypes to motion as follows:
 | `target-beam` | target-locked beam loop |
 | `shield-orbit` | orbit around the protected actor |
 
+When `preview.layers` exists, use its normalized start/end windows, anchors, and optional display sizes so telegraph, body, impact, and residue can overlap like the runtime. When it is absent, retain the compatible four-stage lifecycle. The display-mode, direction, custom-angle, and distance controls are temporary inspection tools; reset them when switching effects or when the user selects the project default.
+
 ## Controls and resource checks
 
 Verify play, pause, restart, single-frame step, FPS, scale, X/Y offsets, loop behavior, background selection, and effect switching. Check for a missing or invalid manifest, incomplete fields, missing PNGs, insufficient frames for the archetype, sprite-strip width not divisible by frame count, missing alpha, unknown archetypes, and lifecycle failures.
@@ -38,7 +42,7 @@ Block only the effect with an error. Keep other valid effects available, and rep
 
 ## Preview decision
 
-Summarize resource checks and visual findings, then pause for one of three choices:
+Summarize resource checks and visual findings, then remind the user that final acceptance requires in-game validation and pause for one of three choices:
 
 - `adjust assets`: return to stage 3 and preserve the issue list;
 - `approve and enter game integration`: continue to stage 5;

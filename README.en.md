@@ -118,6 +118,8 @@ The Skill enters stage 4, resource preview, directly. If readable resources or a
 
 Open `tools/vfx-preview/index.html` directly in a browser, then select the resource directory containing the effect manifest and PNG files. The project's build or export pipeline should automatically emit `effect-manifest.preview.json` beside the runtime assets, so no one has to copy or maintain a second configuration manually. No dependency installation, server, or network connection is required. Missing resources and similar errors are isolated so other valid effects in the same directory remain playable.
 
+The previewer first uses the project default display profile from the manifest, including motion, direction, distance, duration, anchors, and layer choreography. For another project or a temporary comparison, use the display-mode, direction, and distance controls as a manual override. A manual override affects only the current preview and does not modify the manifest or PNG files; switching effects or choosing “Reset to project default” clears it. Use this preview for resource-stage checks, while final acceptance must still happen in game with the real scale, camera, and blend behavior.
+
 Read the reference file named by `SKILL.md` before performing each production stage. Do not declare completion until automated mechanics tests and final gameplay-scale visual captures both pass.
 
 ## Design principle
