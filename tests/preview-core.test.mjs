@@ -11,8 +11,10 @@ const {
   inspectEffect,
   instanceProgress,
   parsePngHeader,
+  resetTimeline,
   sampleSpriteFrame,
   spriteFrameStyle,
+  stepTimeline,
 } = require('../tools/vfx-preview/preview-core.js');
 
 const effect = {
@@ -187,6 +189,79 @@ test('timeline crosses lifecycle stages using unscaled real milliseconds', () =>
     advanceTimeline({ stageIndex: 0, stageElapsed: 450, playing: true }, lifecycle, 100, false),
     { stageIndex: 1, stageElapsed: 50, playing: true },
   );
+});
+
+test('single-frame stepping advances exactly one current-FPS interval', () => {
+  const lifecycle = buildLifecycle(effect);
+  const initial = { stageIndex: 0, stageElapsed: 0, playing: false };
+  const expected = new Map([
+    [1, { stageIndex: 1, stageElapsed: 500, playing: false }],
+    [12, { stageIndex: 0, stageElapsed: 1000 / 12, playing: false }],
+    [24, { stageIndex: 0, stageElapsed: 1000 / 24, playing: false }],
+    [60, { stageIndex: 0, stageElapsed: 1000 / 60, playing: false }],
+  ]);
+
+  for (const [fps, state] of expected) {
+    assert.deepEqual(stepTimeline(initial, lifecycle, fps, false), state);
+  }
+});
+
+test('single-frame stepping crosses a stage boundary without losing elapsed time', () => {
+  const lifecycle = buildLifecycle(effect);
+  const interval = 1000 / 60;
+  const stepped = stepTimeline({
+    stageIndex: 0,
+    stageElapsed: lifecycle[0].durationMs - interval,
+    playing: false,
+  }, lifecycle, 60, false);
+
+  assert.equal(stepped.stageIndex, 1);
+  assert.ok(Math.abs(stepped.stageElapsed) < 1e-9);
+  assert.equal(stepped.playing, false);
+});
+
+test('non-looping timeline clamps at the lifecycle end and stops', () => {
+  const lifecycle = buildLifecycle(effect);
+  assert.deepEqual(
+    advanceTimeline({ stageIndex: 3, stageElapsed: 600, playing: true }, lifecycle, 100, false),
+    { stageIndex: 3, stageElapsed: 650, playing: false },
+  );
+});
+
+test('complete moving lifecycle loops back through telegraph into body', () => {
+  const lifecycle = buildLifecycle(effect);
+  assert.deepEqual(
+    advanceTimeline({ stageIndex: 3, stageElapsed: 600, playing: true }, lifecycle, 100, true),
+    { stageIndex: 0, stageElapsed: 50, playing: true },
+  );
+});
+
+test('persistent body loops in place only while lifecycle looping is enabled', () => {
+  const persistent = { ...effect, visualArchetype: 'persistent-zone' };
+  const lifecycle = buildLifecycle(persistent);
+  const body = { stageIndex: 1, stageElapsed: 850, playing: true };
+
+  assert.deepEqual(advanceTimeline(body, lifecycle, 100, true), {
+    stageIndex: 1, stageElapsed: 50, playing: true,
+  });
+  assert.deepEqual(advanceTimeline(body, lifecycle, 100, false), {
+    stageIndex: 2, stageElapsed: 50, playing: true,
+  });
+});
+
+test('large real delta preserves its remainder across repeated lifecycle loops', () => {
+  const lifecycle = buildLifecycle(effect);
+  const cycleMs = lifecycle.reduce((total, stage) => total + stage.durationMs, 0);
+  assert.deepEqual(
+    advanceTimeline({ stageIndex: 0, stageElapsed: 0, playing: true }, lifecycle, cycleMs * 1000 + 550, true),
+    { stageIndex: 1, stageElapsed: 50, playing: true },
+  );
+});
+
+test('timeline reset supports stopped selection and playing replay semantics', () => {
+  const ended = { stageIndex: 3, stageElapsed: 650, playing: false };
+  assert.deepEqual(resetTimeline(ended, false), { stageIndex: 0, stageElapsed: 0, playing: false });
+  assert.deepEqual(resetTimeline(ended, true), { stageIndex: 0, stageElapsed: 0, playing: true });
 });
 
 test('effect inspection validates archetype and positive scale', () => {

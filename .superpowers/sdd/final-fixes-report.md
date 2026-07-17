@@ -91,3 +91,59 @@ The final commit hash is emitted in the handoff after Git creates the commit. A 
 
 - Real `file://` visual browser acceptance was not rerun in this pass, per controller direction. Automated logic, page-contract, validation, and syntax gates pass, but a release environment should still visually confirm falling telegraph retention and five-projectile volley spacing.
 - No push was performed.
+
+## Follow-up final review correction
+
+The earlier follow-up assertion that prohibited an FPS-derived manual step was incorrect and is superseded by this section. Automatic playback and manual frame stepping have distinct contracts:
+
+- Automatic playback advances with the real `requestAnimationFrame` delta and does not scale lifecycle time by FPS.
+- Manual single-frame playback advances exactly `1000 / currentFPS` milliseconds so one click represents one sampling interval.
+
+### Follow-up RED
+
+Command:
+
+```powershell
+$node='C:\Users\soult\.cache\codex-runtimes\codex-primary-runtime\dependencies\node\bin\node.exe'
+& $node --test '.\tests\preview-core.test.mjs' '.\tests\preview-page.test.mjs'
+```
+
+Observed result: 39 tests, 34 passed, 5 failed. Expected failures showed that `stepTimeline` and `resetTimeline` did not yet exist and `preview.js` did not consume them:
+
+1. `single-frame stepping advances exactly one current-FPS interval`
+2. `single-frame stepping crosses a stage boundary without losing elapsed time`
+3. `timeline reset supports stopped selection and playing replay semantics`
+4. `runtime renders archetype instances and advances the lifecycle with real delta`
+5. `effect selection and restart both reset timeline state through the core`
+
+The new state tests for non-looping completion, complete lifecycle looping, persistent-body loop/exit behavior, and large deltas already passed against the existing `advanceTimeline` implementation.
+
+### Follow-up GREEN
+
+The same focused command then passed 39 tests with 0 failures after:
+
+- adding pure `stepTimeline(timeline, lifecycle, fps, loopEnabled)`;
+- adding pure `resetTimeline(timeline, playing)`;
+- routing the step button through the selected FPS;
+- routing effect selection and restart through the shared reset semantics;
+- preserving automatic `advance(delta)` with the real animation delta.
+
+### Expanded state coverage
+
+- FPS values `1`, `12`, `24`, and `60` each advance one exact `1000 / fps` sampling interval.
+- A single step can cross a lifecycle stage without losing remainder time.
+- Non-looping playback clamps at the final residue duration and stops.
+- A complete non-persistent lifecycle loops back through telegraph correctly.
+- A persistent body loops in place only when looping is enabled, and advances to impact when disabled.
+- A delta spanning 1000 complete cycles preserves the correct remainder.
+- Stopped selection and playing replay resets both return to stage 0 at 0 milliseconds.
+- Static runtime coverage proves both effect switching and restart use the pure reset path.
+
+### Follow-up final verification
+
+- Node test discovery: 47 passed, 0 failed, 0 skipped, 0 todo.
+- Example manifest validator, Skill validator, all JavaScript syntax checks, and `git diff --check` are rerun after this report edit and before commit.
+
+### Follow-up concern
+
+Real `file://` visual browser acceptance remains outside this pass; no push is performed.

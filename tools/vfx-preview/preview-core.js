@@ -119,6 +119,17 @@
     return { stageIndex, stageElapsed, playing };
   }
 
+  function stepTimeline(timeline, lifecycle, fps, loopEnabled) {
+    if (!Number.isFinite(fps) || fps <= 0) {
+      throw new RangeError('fps must be a finite positive number');
+    }
+    return advanceTimeline({ ...timeline, playing: false }, lifecycle, 1000 / fps, loopEnabled);
+  }
+
+  function resetTimeline(_timeline, playing) {
+    return { stageIndex: 0, stageElapsed: 0, playing: Boolean(playing) };
+  }
+
   function inspectEffect(effect) {
     const errors = [];
     const rule = ARCHETYPE_RULES[effect?.visualArchetype];
@@ -204,8 +215,10 @@
     inspectEffect,
     instanceProgress,
     parsePngHeader,
+    resetTimeline,
     sampleSpriteFrame,
     spriteFrameStyle,
+    stepTimeline,
   };
   if (typeof module !== 'undefined' && module.exports) module.exports = api;
   else globalScope.VfxPreviewCore = api;

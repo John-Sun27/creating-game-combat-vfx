@@ -13,7 +13,7 @@ $node='C:\Users\soult\.cache\codex-runtimes\codex-primary-runtime\dependencies\n
 & $node --test
 ```
 
-Result: 39 tests passed, 0 failed, 0 skipped, 0 todo.
+Result: 47 tests passed, 0 failed, 0 skipped, 0 todo.
 
 The discovered suite includes:
 
@@ -35,6 +35,8 @@ The remaining final gate also passed:
 - Falling effects retain a fixed telegraph during the moving body stage.
 - Projectile volleys render five staggered, horizontally offset body instances.
 - FPS changes sprite-frame sampling only; lifecycle and motion use real elapsed milliseconds.
+- Manual single-frame playback advances exactly `1000 / currentFPS` milliseconds, while automatic playback continues to use real animation delta.
+- Timeline state coverage includes stop, replay reset, full-loop, persistent-body, large-delta, and cross-stage stepping semantics.
 - The page asserts the complete classic script order: core, loader, runtime.
 
 ## Browser acceptance

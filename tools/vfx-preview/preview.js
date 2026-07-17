@@ -203,9 +203,10 @@
 
   function selectEffect(entry) {
     state.current = entry;
-    state.playing = false;
-    state.stageIndex = 0;
-    state.stageElapsed = 0;
+    const timeline = core.resetTimeline(state, false);
+    state.playing = timeline.playing;
+    state.stageIndex = timeline.stageIndex;
+    state.stageElapsed = timeline.stageElapsed;
     state.lifecycle = entry.valid ? core.buildLifecycle(entry.effect) : [];
     refs.effectList.querySelectorAll('.effect-item').forEach((button) => {
       button.classList.toggle('active', button.dataset.effectId === entry.id);
@@ -324,9 +325,10 @@
 
   function restart(playAfter) {
     if (!state.current || !state.current.valid) return;
-    state.stageIndex = 0;
-    state.stageElapsed = 0;
-    state.playing = Boolean(playAfter);
+    const timeline = core.resetTimeline(state, playAfter);
+    state.stageIndex = timeline.stageIndex;
+    state.stageElapsed = timeline.stageElapsed;
+    state.playing = timeline.playing;
     state.lastTick = performance.now();
     renderFrame();
     updateButtons();
@@ -361,8 +363,17 @@
   refs.pauseButton.addEventListener('click', () => { state.playing = false; updateButtons(); });
   refs.restartButton.addEventListener('click', () => restart(true));
   refs.stepButton.addEventListener('click', () => {
-    state.playing = false;
-    advance(1000 / 60);
+    const timeline = core.stepTimeline(
+      state,
+      state.lifecycle,
+      Number(refs.fpsInput.value),
+      refs.loopInput.checked,
+    );
+    state.stageIndex = timeline.stageIndex;
+    state.stageElapsed = timeline.stageElapsed;
+    state.playing = timeline.playing;
+    renderFrame();
+    updateButtons();
   });
   refs.fpsInput.addEventListener('input', () => { refs.fpsValue.textContent = refs.fpsInput.value; renderFrame(); });
   refs.scaleInput.addEventListener('input', () => { refs.scaleValue.textContent = `${Number(refs.scaleInput.value).toFixed(2)}×`; renderFrame(); });

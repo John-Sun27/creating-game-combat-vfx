@@ -29,7 +29,11 @@ test('runtime renders archetype instances and advances the lifecycle with real d
   assert.match(js, /core\.instanceProgress\(/);
   assert.match(js, /core\.sampleSpriteFrame\(/);
   assert.match(js, /core\.advanceTimeline\(/);
+  assert.match(js, /core\.stepTimeline\([^;]*Number\(refs\.fpsInput\.value\)/s);
   assert.match(js, /advance\(delta\)/);
   assert.doesNotMatch(js, /advance\(delta\s*\*\s*Number\(refs\.fpsInput\.value\)/);
-  assert.doesNotMatch(js, /advance\(1000\s*\/\s*Number\(refs\.fpsInput\.value\)\)/);
+});
+
+test('effect selection and restart both reset timeline state through the core', () => {
+  assert.equal((js.match(/core\.resetTimeline\(/g) || []).length, 2);
 });
