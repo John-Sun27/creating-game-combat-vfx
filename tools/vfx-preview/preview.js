@@ -3,6 +3,8 @@
 
   const core = window.VfxPreviewCore;
   if (!core) throw new Error('VfxPreviewCore must load before preview.js');
+  const loader = window.VfxPreviewLoader;
+  if (!loader) throw new Error('VfxPreviewLoader must load before preview.js');
 
   const layerNames = ['telegraph', 'body', 'impact', 'residue'];
   const refs = Object.fromEntries([
@@ -15,7 +17,6 @@
   const state = {
     effects: [],
     current: null,
-    resources: new Map(),
     urls: [],
     lifecycle: [],
     stageIndex: 0,
@@ -24,51 +25,6 @@
     lastTick: 0,
     loadToken: 0,
   };
-
-  function basename(filePath) {
-    return filePath.replace(/\\/g, '/').split('/').pop();
-  }
-
-  function makeFileMap(files) {
-    const map = new Map();
-    files.forEach((file) => {
-      const relative = (file.webkitRelativePath || file.name).replace(/\\/g, '/');
-      map.set(relative, file);
-      map.set(relative.toLowerCase(), file);
-      if (!map.has(file.name)) map.set(file.name, file);
-      if (!map.has(file.name.toLowerCase())) map.set(file.name.toLowerCase(), file);
-    });
-    return map;
-  }
-
-  function resolveFile(fileMap, filePath) {
-    const normalized = String(filePath || '').replace(/^\.\//, '').replace(/\\/g, '/');
-    return fileMap.get(normalized) || fileMap.get(normalized.toLowerCase()) ||
-      fileMap.get(basename(normalized)) || fileMap.get(basename(normalized).toLowerCase());
-  }
-
-  async function readJson(file) {
-    return JSON.parse(await file.text());
-  }
-
-  async function chooseManifest(files) {
-    const jsonFiles = files.filter((file) => /\.json$/i.test(file.name));
-    for (const preferredName of ['effect-manifest.preview.json', 'effect-manifest.json']) {
-      const file = jsonFiles.find((candidate) => candidate.name.toLowerCase() === preferredName);
-      if (file) return { file, manifest: await readJson(file) };
-    }
-    for (const file of jsonFiles) {
-      try {
-        const manifest = await readJson(file);
-        if (manifest && 'schemaVersion' in manifest && Array.isArray(manifest.effects)) {
-          return { file, manifest };
-        }
-      } catch (_) {
-        // An unrelated JSON file must not prevent discovery of a later manifest.
-      }
-    }
-    throw new Error('未找到 effect-manifest.preview.json、effect-manifest.json 或兼容的特效清单。');
-  }
 
   function imageDimensions(url) {
     return new Promise((resolve, reject) => {
@@ -83,7 +39,7 @@
     issues.push({ severity, resource, message, suggestion });
   }
 
-  async function inspectResource(file, layer, effect, layerName, token) {
+  async function inspectResource(file, layer, token) {
     const buffer = await file.arrayBuffer();
     const png = core.parsePngHeader(buffer);
     const url = URL.createObjectURL(new Blob([buffer], { type: file.type || 'image/png' }));
@@ -96,32 +52,36 @@
         throw new Error('PNG 标头尺寸与浏览器解码尺寸不一致');
       }
       state.urls.push(url);
-      return { file, url, width: png.width, height: png.height, hasAlpha: png.hasAlpha, frames: layer.frames, effect, layerName };
+      return { file, url, width: png.width, height: png.height, hasAlpha: png.hasAlpha, frames: layer.frames };
     } catch (error) {
       URL.revokeObjectURL(url);
       throw error;
     }
   }
 
-  async function validateEffect(effect, fileMap, token) {
+  async function validateEffect(record, fileIndex, token) {
     const issues = [];
     const resources = {};
-    core.inspectEffect(effect).forEach((message) => {
+    const effect = record.effect;
+    record.configErrors.forEach((message) => {
       addIssue(issues, 'error', '配置', message, '修正清单字段后重新载入目录。');
     });
 
     await Promise.all(layerNames.map(async (layerName) => {
       const layer = effect && effect.layers && effect.layers[layerName];
       if (!layer || !layer.file) return;
-      const file = resolveFile(fileMap, layer.file);
-      if (!file) {
+      const resolution = loader.resolveIndexedFile(fileIndex, layer.file);
+      if (!resolution.file) {
+        if (resolution.reason === 'ambiguous-basename') {
+          addIssue(issues, 'error', layer.file, `${layerName} 文件名存在冲突：${resolution.candidates.join('、')}`, '在清单中填写相对于所选目录的完整路径。');
+          return;
+        }
         addIssue(issues, 'error', layer.file, `${layerName} 图层文件缺失`, '补齐文件或修正清单中的文件名。');
         return;
       }
       try {
-        const resource = await inspectResource(file, layer, effect, layerName, token);
+        const resource = await inspectResource(resolution.file, layer, token);
         resources[layerName] = resource;
-        state.resources.set(`${effect.key}:${layerName}`, resource);
         if (resource.width % layer.frames !== 0) {
           addIssue(issues, 'error', layer.file, `宽度 ${resource.width} 不能被 ${layer.frames} 帧整除`, '调整序列帧数量或重新导出等宽横向序列帧。');
         }
@@ -133,13 +93,12 @@
       }
     }));
 
-    return { effect, issues, resources, valid: !issues.some((issue) => issue.severity === 'error') };
+    return { ...record, issues, resources, valid: !issues.some((issue) => issue.severity === 'error') };
   }
 
   function revokeUrls() {
     state.urls.forEach((url) => URL.revokeObjectURL(url));
     state.urls = [];
-    state.resources.clear();
   }
 
   function showGlobalIssue(message) {
@@ -165,13 +124,25 @@
     refs.effectList.replaceChildren();
     try {
       const selectedFiles = Array.from(files);
-      const { manifest } = await chooseManifest(selectedFiles);
+      const { manifest } = await loader.chooseManifest(selectedFiles);
       if (token !== state.loadToken) return;
       if (manifest.schemaVersion === undefined || !Array.isArray(manifest.effects)) {
         throw new Error('清单必须包含 schemaVersion 和 effects 数组。');
       }
-      const fileMap = makeFileMap(selectedFiles);
-      state.effects = await Promise.all(manifest.effects.map((effect) => validateEffect(effect, fileMap, token)));
+      const fileIndex = loader.buildFileIndex(selectedFiles);
+      const records = loader.createEffectRecords(manifest.effects, core.inspectEffect);
+      state.effects = await Promise.all(records.map(async (record) => {
+        try {
+          return await validateEffect(record, fileIndex, token);
+        } catch (error) {
+          return {
+            ...record,
+            resources: {},
+            valid: false,
+            issues: [{ severity: 'error', resource: record.label, message: `验证失败：${error.message}`, suggestion: '修正此特效后重新载入目录。' }],
+          };
+        }
+      }));
       if (token !== state.loadToken) return;
       renderEffectList();
       const firstValid = state.effects.find((entry) => entry.valid) || state.effects[0];
@@ -190,10 +161,10 @@
       const button = document.createElement('button');
       button.type = 'button';
       button.className = `effect-item${entry.valid ? '' : ' invalid'}`;
-      button.dataset.effectKey = entry.effect.key;
+      button.dataset.effectId = entry.id;
       button.innerHTML = `<strong></strong><span class="effect-meta"><span></span><span class="effect-state"></span></span>`;
-      button.querySelector('strong').textContent = entry.effect.key || '未命名特效';
-      button.querySelector('.effect-meta > span').textContent = entry.effect.visualArchetype || 'unknown';
+      button.querySelector('strong').textContent = entry.label;
+      button.querySelector('.effect-meta > span').textContent = typeof entry.effect.visualArchetype === 'string' ? entry.effect.visualArchetype : 'unknown';
       button.querySelector('.effect-state').textContent = entry.valid ? '可播放' : '有错误';
       button.addEventListener('click', () => selectEffect(entry));
       refs.effectList.append(button);
@@ -237,7 +208,7 @@
     state.stageElapsed = 0;
     state.lifecycle = entry.valid ? core.buildLifecycle(entry.effect) : [];
     refs.effectList.querySelectorAll('.effect-item').forEach((button) => {
-      button.classList.toggle('active', button.dataset.effectKey === entry.effect.key);
+      button.classList.toggle('active', button.dataset.effectId === entry.id);
     });
     renderIssues(entry);
     clearStage();

@@ -18,3 +18,8 @@ test('preview uses DOM sprites and no canvas', () => {
   assert.match(js, /requestAnimationFrame/);
   assert.match(js, /sprite-layer/);
 });
+
+test('page loads browser-safe loader helpers before the preview runtime', () => {
+  assert.match(html, /<script src=["']preview-loader\.js["']><\/script>\s*<script src=["']preview\.js["']><\/script>/);
+  assert.doesNotMatch(html, /type=["']module["']/i);
+});
