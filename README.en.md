@@ -2,7 +2,7 @@
 
 [简体中文](README.md) | [English](README.en.md)
 
-A reusable ChatGPT Skill for taking game combat effects from visual direction to production-ready integration and acceptance. It captures a complete workflow proven on sword, fire, and water spell families: visual design, sprite-sheet production, semantic playback, configuration export, hidden GM testing, regression tests, and device-level visual review.
+A reusable ChatGPT Skill for taking game combat effects from visual direction to production-ready integration and acceptance. It captures a complete workflow proven on sword, fire, and water ability families: visual design, sprite-sheet production, semantic playback, configuration export, hidden GM testing, regression tests, and device-level visual review.
 
 ## Visual references
 
@@ -73,7 +73,7 @@ scripts/validate_effect_manifest.mjs  Deterministic manifest validator
 Install or link this folder in your Codex skills directory, then invoke:
 
 ```text
-Use $creating-game-combat-vfx to design and integrate this spell effect set.
+Use $creating-game-combat-vfx to design, produce, and integrate the complete combat VFX for this ability set.
 ```
 
 For a new effect set, copy `assets/effect-manifest.example.json`, fill in the effect definitions, and validate it:
