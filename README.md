@@ -1,72 +1,72 @@
-# Creating Game Combat VFX
+# 游戏战斗特效制作 Skill
 
-[English](README.md) | [简体中文](README.zh-CN.md)
+[简体中文](README.md) | [English](README.en.md)
 
-A reusable Codex Skill for taking game combat effects from visual direction to production-ready integration and acceptance. It captures a complete workflow proven on sword, fire, and water spell families: visual design, sprite-sheet production, semantic playback, configuration export, hidden GM testing, regression tests, and device-level visual review.
+这是一个可复用的 Codex Skill，用于将游戏战斗特效从视觉定位推进到可接入、可配置、可测试和可验收的最终状态。流程已经在剑、火、水三类咒法中完成验证，覆盖视觉设计、序列帧资源制作、语义化播放、配置导出、隐藏 GM 测试、回归测试和真机视觉验收。
 
-## Why this project exists
+## 项目目标
 
-Combat VFX often fail after otherwise-correct assets are connected to gameplay: projectiles are stretched instead of moved, trails detach from their parent, falling effects appear inside enemies, impacts freeze on their last frame, and bright textures become white blowouts. This Skill treats combat mechanics and presentation as separate systems so those problems can be fixed without changing damage, targeting, collision, penetration, buffs, or timing.
+很多特效在素材本身正确的情况下，接入游戏后仍会出现问题：飞行物被持续拉长、尾迹与主体分离、天降特效从怪物身体出现、命中特效停留在最后一帧、亮色素材显示成整片白光。本 Skill 将战斗机制和视觉表现拆分为独立系统，使这些问题可以在不改变伤害、目标选择、碰撞、穿透、Buff 和时间机制的情况下得到修正。
 
-## What this skill covers
+## Skill 覆盖内容
 
-- Project-specific visual direction and four-stage storyboards
-- Transparent PNG sprite-sheet requirements and exposure control
-- Semantic playback archetypes for slashes, projectiles, volleys, moving fronts, falling objects, eruptions, persistent zones, traps, brands, beams, and orbiting shields
-- Separate moving body, locked ground anchor, local trail, and timestamped impact state
-- Spreadsheet-driven scale, offset, width, radius, and export verification
-- Hidden GM/debug access for isolated spell playback
-- Automated renderer and combat-mechanics regression tests
-- Simulator or device frame capture and final acceptance criteria
+- 基于项目自身风格的视觉定位与四阶段分镜
+- 透明 PNG 序列帧、帧数、锚点、透明度和曝光规范
+- 近身剑气、飞行物、多弹体、移动浪头、天降物、地面喷发、持续领域、陷阱、烙印、光束和护盾环绕等播放模型
+- 移动主体、固定地面锚点、局部尾迹与带时间戳命中事件的状态拆分
+- 由配置表控制大小、偏移、宽度、半径以及导表结果验证
+- 用隐藏手势呼出 GM 面板，独立播放任意技能
+- 特效渲染测试与完整战斗机制回归测试
+- 模拟器或真机关键帧截图及最终验收标准
 
-## Core workflow
+## 核心流程
 
-1. Audit the battle camera, anchors, renderer, configuration source, exporter, and test surface.
-2. Translate every spell description into gameplay semantics and a visual motion archetype.
-3. Design anticipation, travel/build, impact, and residue keyframes over the actual battlefield.
-4. Approve one representative effect, then produce the complete family consistently.
-5. Export authored sprite sheets with stable pivots, sufficient frames, and controlled alpha.
-6. Integrate presentation actors without changing combat mechanics.
-7. Expose visual tuning in the authoritative configuration table and verify export results.
-8. Replay every spell independently through a hidden GM/debug panel.
-9. Run automated regression tests and device-level visual acceptance.
+1. 检查战斗镜头、角色与怪物锚点、现有渲染器、配置源、导表工具和测试入口。
+2. 将每个技能描述转换为明确的战斗语义和视觉运动模型。
+3. 在实际战斗背景上设计预警、运动或蓄力、命中、残留四个阶段。
+4. 先验证一个代表性特效，再统一制作整个元素系列。
+5. 输出锚点稳定、帧数充足、透明度受控的非程序化序列帧资源。
+6. 接入视觉状态，但不修改战斗机制。
+7. 将视觉大小和偏移开放到权威配置表，并验证导出结果。
+8. 通过隐藏 GM 面板逐个重复播放所有技能。
+9. 完成自动化回归和真机比例视觉验收。
 
-## Repository structure
-
-```text
-SKILL.md                              Core agent workflow and completion gate
-agents/openai.yaml                    Codex UI metadata and default invocation
-references/visual-design.md           Art direction and storyboard rules
-references/asset-production.md        Sprite-sheet, alpha, and export standards
-references/runtime-integration.md     Motion archetypes and visual-state contracts
-references/config-and-export.md       Configuration and table export workflow
-references/qa-and-acceptance.md       Automated and visual acceptance criteria
-assets/effect-manifest.example.json   Reusable effect manifest template
-scripts/validate_effect_manifest.mjs  Deterministic manifest validator
-```
-
-## Usage
-
-Install or link this folder in your Codex skills directory, then invoke:
+## 仓库结构
 
 ```text
-Use $creating-game-combat-vfx to design and integrate this spell effect set.
+SKILL.md                              Skill 核心流程与完成门槛
+agents/openai.yaml                    Codex 界面元数据和默认调用语句
+references/visual-design.md           视觉定位与分镜规范
+references/asset-production.md        序列帧、透明度和资源导出规范
+references/runtime-integration.md     播放模型与视觉状态协议
+references/config-and-export.md       配置表和导表工作流
+references/qa-and-acceptance.md       自动化与视觉验收标准
+assets/effect-manifest.example.json   可复用的特效清单模板
+scripts/validate_effect_manifest.mjs  确定性特效清单校验工具
 ```
 
-For a new effect set, copy `assets/effect-manifest.example.json`, fill in the effect definitions, and validate it:
+## 使用方法
+
+将本目录安装或链接到 Codex 的 Skills 目录，然后调用：
+
+```text
+使用 $creating-game-combat-vfx 为这组咒法设计、制作并接入完整战斗特效。
+```
+
+制作新特效组时，复制 `assets/effect-manifest.example.json`，填写特效定义并执行校验：
 
 ```bash
 node scripts/validate_effect_manifest.mjs path/to/effect-manifest.json
 ```
 
-Read the reference file named by `SKILL.md` before performing each production stage. Do not declare completion until automated mechanics tests and final gameplay-scale visual captures both pass.
+每个制作阶段开始前，根据 `SKILL.md` 的指引读取对应参考文件。只有自动化战斗机制测试和最终游戏比例截图验收都通过后，才能将特效标记为完成。
 
-## Design principle
+## 设计原则
 
-Keep combat authoritative and presentation replaceable:
+保持战斗机制权威，视觉表现可替换：
 
-- combat actors own targets, collision, damage, penetration, ticks, buffs, and healing;
-- visual actors own position, ground anchors, trails, spawn height, scale, and offsets;
-- visual events own timestamped impacts, pulses, shatters, and one-shot lifetimes.
+- 战斗 Actor 负责目标、碰撞、伤害、穿透、持续次数、Buff 和治疗；
+- 视觉 Actor 负责位置、地面锚点、尾迹、天降高度、大小和偏移；
+- 视觉事件负责带时间戳的命中、脉冲、破碎和一次性播放生命周期。
 
-This separation is the foundation for effects that look correct without destabilizing gameplay.
+这套拆分方式可以在保证战斗机制稳定的同时，让特效真正按照视觉设计播放。
