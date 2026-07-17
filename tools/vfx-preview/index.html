@@ -58,6 +58,32 @@
         <button id="stepButton" type="button">逐帧 <small>Step</small></button>
       </div>
 
+      <div class="control-group display-controls">
+        <label for="displayModeSelect"><span>展示方式 <small>Display mode</small></span></label>
+        <select id="displayModeSelect">
+          <option value="project-default">项目默认 · Project default</option>
+          <option value="in-place">原位资源 · Asset in place</option>
+          <option value="projectile">直线飞行 · Projectile</option>
+          <option value="moving-front">道路推进 · Moving front</option>
+          <option value="falling">从天而降 · Falling</option>
+          <option value="persistent-ground">地面持续 · Persistent ground</option>
+          <option value="orbit">环绕 · Orbit</option>
+        </select>
+        <label for="directionSelect"><span>释放方向 <small>Direction</small></span></label>
+        <select id="directionSelect">
+          <option value="90">上 → 下</option>
+          <option value="-90">下 → 上</option>
+          <option value="0">左 → 右</option>
+          <option value="180">右 → 左</option>
+          <option value="custom">自定义角度</option>
+        </select>
+        <label for="angleInput"><span>方向角度 <small>Angle</small></span><output id="angleValue">90°</output></label>
+        <input id="angleInput" type="range" min="-180" max="180" value="90">
+        <label for="distanceInput"><span>移动距离 <small>Distance</small></span><output id="distanceValue">340</output></label>
+        <input id="distanceInput" type="range" min="0" max="520" value="340">
+        <button id="resetDisplayButton" class="secondary-button" type="button">恢复项目默认 <small>Reset display</small></button>
+      </div>
+
       <div class="control-group">
         <label for="fpsInput"><span>帧率 <small>FPS</small></span><output id="fpsValue">24</output></label>
         <input id="fpsInput" type="range" min="1" max="60" value="24">

@@ -12,6 +12,8 @@
     'stageName', 'frameName', 'playButton', 'pauseButton', 'restartButton', 'stepButton',
     'fpsInput', 'fpsValue', 'scaleInput', 'scaleValue', 'offsetXInput', 'offsetXValue',
     'offsetYInput', 'offsetYValue', 'backgroundSelect', 'loopInput', 'issueList', 'issueSummary',
+    'displayModeSelect', 'directionSelect', 'angleInput', 'angleValue', 'distanceInput',
+    'distanceValue', 'resetDisplayButton',
   ].map((id) => [id, document.getElementById(id)]));
 
   const state = {
@@ -24,6 +26,16 @@
     playing: false,
     lastTick: 0,
     loadToken: 0,
+    previewOverrides: {},
+  };
+
+  const DISPLAY_MOTIONS = {
+    'in-place': 'static',
+    projectile: 'travel',
+    'moving-front': 'front',
+    falling: 'fall',
+    'persistent-ground': 'zone',
+    orbit: 'orbit',
   };
 
   function imageDimensions(url) {
@@ -201,8 +213,49 @@
     refs.frameName.textContent = '—';
   }
 
+  function syncDisplayControls() {
+    if (!state.current?.effect) return;
+    const profile = core.resolvePreviewProfile(state.current.effect);
+    refs.displayModeSelect.value = 'project-default';
+    const direction = ['90', '-90', '0', '180'].includes(String(profile.directionDeg))
+      ? String(profile.directionDeg)
+      : 'custom';
+    refs.directionSelect.value = direction;
+    refs.angleInput.value = String(profile.directionDeg);
+    refs.angleValue.textContent = `${profile.directionDeg}°`;
+    refs.distanceInput.value = String(profile.distance);
+    refs.distanceValue.textContent = String(profile.distance);
+    refs.angleInput.disabled = direction !== 'custom';
+  }
+
+  function resetDisplayOverrides(render = true) {
+    state.previewOverrides = {};
+    syncDisplayControls();
+    if (render && state.current?.valid) renderFrame();
+  }
+
+  function updateDisplayOverrides() {
+    const displayMode = refs.displayModeSelect.value;
+    const directionDeg = refs.directionSelect.value === 'custom'
+      ? Number(refs.angleInput.value)
+      : Number(refs.directionSelect.value);
+    state.previewOverrides = {
+      ...(displayMode === 'project-default' ? {} : {
+        displayMode,
+        motion: DISPLAY_MOTIONS[displayMode],
+      }),
+      directionDeg,
+      distance: Number(refs.distanceInput.value),
+    };
+    refs.angleValue.textContent = `${directionDeg}°`;
+    refs.distanceValue.textContent = refs.distanceInput.value;
+    refs.angleInput.disabled = refs.directionSelect.value !== 'custom';
+    renderFrame();
+  }
+
   function selectEffect(entry) {
     state.current = entry;
+    resetDisplayOverrides(false);
     const timeline = core.resetTimeline(state, false);
     state.playing = timeline.playing;
     state.stageIndex = timeline.stageIndex;
@@ -254,31 +307,11 @@
     });
   }
 
-  function motionTransform(motion, progress) {
-    const eased = progress * progress * (3 - 2 * progress);
-    switch (motion) {
-      case 'travel': return `translateX(${(-170 + 340 * eased).toFixed(1)}px)`;
-      case 'volley': return `translate(${(-170 + 340 * eased).toFixed(1)}px, ${(-18 * Math.sin(progress * Math.PI * 3)).toFixed(1)}px)`;
-      case 'front': return `translateX(${(-150 + 300 * eased).toFixed(1)}px) scaleX(${(0.9 + progress * 0.2).toFixed(3)})`;
-      case 'fall': return `translateY(${(-190 + 250 * eased).toFixed(1)}px) rotate(${(-12 + 18 * progress).toFixed(1)}deg)`;
-      case 'arc': return `translate(${(-80 + 160 * eased).toFixed(1)}px, ${(-70 * Math.sin(progress * Math.PI)).toFixed(1)}px) rotate(${(-70 + 140 * progress).toFixed(1)}deg)`;
-      case 'erupt': return `translateY(${(60 - 60 * eased).toFixed(1)}px) scaleY(${(0.5 + 0.5 * eased).toFixed(3)})`;
-      case 'zone': return `scale(${(0.9 + 0.08 * Math.sin(progress * Math.PI * 2)).toFixed(3)}) rotate(${(progress * 12).toFixed(1)}deg)`;
-      case 'trap': return `scale(${(0.85 + 0.15 * eased).toFixed(3)})`;
-      case 'brand': return `translateY(${(-12 * Math.sin(progress * Math.PI)).toFixed(1)}px) scale(${(0.9 + 0.1 * eased).toFixed(3)})`;
-      case 'beam': return `scaleY(${(0.6 + 0.4 * eased).toFixed(3)})`;
-      case 'orbit': return `rotate(${(progress * 360).toFixed(1)}deg) translateX(28px) rotate(${(-progress * 360).toFixed(1)}deg)`;
-      case 'telegraph': return `scale(${(0.72 + 0.28 * eased).toFixed(3)})`;
-      case 'impact': return `scale(${(0.65 + 0.55 * Math.sin(progress * Math.PI)).toFixed(3)})`;
-      case 'residue': return `scale(${(1 + 0.08 * progress).toFixed(3)})`;
-      default: return '';
-    }
-  }
-
   function renderFrame() {
     if (!state.current || !state.current.valid || !state.lifecycle.length) return;
     const stage = state.lifecycle[state.stageIndex];
     const effect = state.current.effect;
+    const previewProfile = core.resolvePreviewProfile(effect, state.previewOverrides);
     const userScale = Number(refs.scaleInput.value);
     const offsetX = Number(effect.offsetX || 0) + Number(refs.offsetXInput.value);
     const offsetY = Number(effect.offsetY || 0) + Number(refs.offsetYInput.value);
@@ -304,10 +337,15 @@
       node.style.backgroundSize = style.backgroundSize;
       node.style.backgroundPosition = style.backgroundPosition;
       node.style.opacity = stage.name === 'residue' ? String(1 - instanceState.progress * .7) : '1';
-      node.style.transform = `translate(-50%, -50%) translate(${offsetX + instance.offsetX}px, ${offsetY + instance.offsetY}px) ${motionTransform(instance.motion, instanceState.progress)} scale(${Number(effect.scale) * userScale})`;
+      const instanceIndex = Number(instance.id.split('-').pop()) || 0;
+      const pose = stage.name === 'body'
+        ? core.motionPose(previewProfile, instanceState.progress, instanceIndex)
+        : core.motionPose({ ...previewProfile, motion: 'static' }, instanceState.progress, instanceIndex);
+      const scale = Number(effect.scale) * userScale;
+      node.style.transform = `translate(-50%, -50%) translate(${offsetX + instance.offsetX + pose.x}px, ${offsetY + instance.offsetY + pose.y}px) rotate(${pose.rotationDeg}deg) scale(${pose.scaleX * scale}, ${pose.scaleY * scale})`;
       frameLabels.push(`${frameIndex + 1} / ${frameCount}`);
     });
-    refs.stageName.textContent = `${stage.name} · ${stage.motion}`;
+    refs.stageName.textContent = `${stage.name} · ${stage.name === 'body' ? previewProfile.motion : stage.motion}`;
     refs.frameName.textContent = frameLabels.length > 1
       ? `${frameLabels[0]} · ${frameLabels.length} instances`
       : (frameLabels[0] || '—');
@@ -379,6 +417,11 @@
   refs.scaleInput.addEventListener('input', () => { refs.scaleValue.textContent = `${Number(refs.scaleInput.value).toFixed(2)}×`; renderFrame(); });
   refs.offsetXInput.addEventListener('input', () => { refs.offsetXValue.textContent = refs.offsetXInput.value; renderFrame(); });
   refs.offsetYInput.addEventListener('input', () => { refs.offsetYValue.textContent = refs.offsetYInput.value; renderFrame(); });
+  refs.displayModeSelect.addEventListener('change', updateDisplayOverrides);
+  refs.directionSelect.addEventListener('change', updateDisplayOverrides);
+  refs.angleInput.addEventListener('input', updateDisplayOverrides);
+  refs.distanceInput.addEventListener('input', updateDisplayOverrides);
+  refs.resetDisplayButton.addEventListener('click', resetDisplayOverrides);
   refs.backgroundSelect.addEventListener('change', () => {
     refs.previewStage.className = `preview-stage background-${refs.backgroundSelect.value}`;
   });

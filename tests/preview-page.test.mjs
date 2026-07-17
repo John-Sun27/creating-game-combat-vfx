@@ -11,6 +11,20 @@ test('page exposes local folder loading and playback controls', () => {
   }
 });
 
+test('page exposes project default and manual display controls', () => {
+  for (const id of ['displayModeSelect', 'directionSelect', 'angleInput', 'distanceInput', 'resetDisplayButton']) {
+    assert.match(html, new RegExp(`id=["']${id}["']`));
+  }
+  assert.match(js, /core\.resolvePreviewProfile/);
+  assert.match(js, /core\.motionPose/);
+});
+
+test('manual display overrides reset when switching effects or pressing reset', () => {
+  assert.match(js, /previewOverrides/);
+  assert.match(js, /function resetDisplayOverrides/);
+  assert.match(js, /resetDisplayButton\.addEventListener/);
+});
+
 test('preview uses DOM sprites and no canvas', () => {
   assert.doesNotMatch(html, /<canvas/i);
   assert.doesNotMatch(html, /type=["']module["']/i);
@@ -32,6 +46,7 @@ test('runtime renders archetype instances and advances the lifecycle with real d
   assert.match(js, /core\.stepTimeline\([^;]*Number\(refs\.fpsInput\.value\)/s);
   assert.match(js, /advance\(delta\)/);
   assert.doesNotMatch(js, /advance\(delta\s*\*\s*Number\(refs\.fpsInput\.value\)/);
+  assert.doesNotMatch(js, /case ['"]travel['"]:\s*return `translateX/);
 });
 
 test('effect selection and restart both reset timeline state through the core', () => {

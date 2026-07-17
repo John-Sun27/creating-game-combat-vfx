@@ -76,6 +76,9 @@ h2 { font-size: 1rem; letter-spacing: .06em; }
 .button-grid button:hover:not(:disabled) { border-color: rgba(94,225,212,.5); background: rgba(94,225,212,.08); }
 button:disabled { cursor: not-allowed; opacity: .38; }
 .control-group { display: grid; gap: 9px; margin: 0 12px; padding: 13px 2px; border-top: 1px solid var(--line); }
+.display-controls { background: rgba(94,225,212,.025); }
+.secondary-button { padding: 9px 10px; border: 1px solid var(--line); border-radius: 6px; background: rgba(255,255,255,.035); color: var(--text); cursor: pointer; }
+.secondary-button:hover { border-color: rgba(94,225,212,.5); background: rgba(94,225,212,.08); }
 .control-group label, .toggle-row { display: flex; align-items: center; justify-content: space-between; gap: 8px; font-size: .8rem; }
 .control-group label span { display: flex; gap: 5px; align-items: baseline; }
 output { color: var(--cyan); font-variant-numeric: tabular-nums; }
