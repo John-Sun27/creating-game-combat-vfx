@@ -26,6 +26,12 @@ The warning seal, airborne meteor, ground impact, and scorched residue each comm
 
 ![Four-stage visual reference for Celestial Meteor](docs/reference-images/06_yunshi_celestial_furnace_core.png)
 
+### VFX previewer
+
+The local previewer brings together the effect list, stage playback, resource validation, and display controls so sprite frames, direction, distance, anchors, and layer choreography can be checked before game integration.
+
+![Combat VFX previewer interface](docs/reference-images/vfx_previewer.png)
+
 ## Why this project exists
 
 Combat VFX often fail after otherwise-correct assets are connected to gameplay: projectiles are stretched instead of moved, trails detach from their parent, falling effects appear inside enemies, impacts freeze on their last frame, and bright textures become white blowouts. This Skill treats combat mechanics and presentation as separate systems so those problems can be fixed without changing damage, targeting, collision, penetration, buffs, or timing.
