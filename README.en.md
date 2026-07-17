@@ -2,29 +2,29 @@
 
 [简体中文](README.md) | [English](README.en.md)
 
-A reusable Codex Skill for taking game combat effects from visual direction to production-ready integration and acceptance. It captures a complete workflow proven on sword, fire, and water spell families: visual design, sprite-sheet production, semantic playback, configuration export, hidden GM testing, regression tests, and device-level visual review.
+A reusable ChatGPT Skill for taking game combat effects from visual direction to production-ready integration and acceptance. It captures a complete workflow proven on sword, fire, and water spell families: visual design, sprite-sheet production, semantic playback, configuration export, hidden GM testing, regression tests, and device-level visual review.
 
 ## Visual references
 
-These storyboards demonstrate how the Skill maps gameplay semantics to motion and residue phases. They define visual direction and keyframe relationships; they are not single static textures to be stretched during playback.
+These storyboards demonstrate how the Skill maps gameplay semantics to motion and residue phases. Created with ChatGPT, they define the visual direction and keyframe relationships used to produce the final effects.
 
-### Returning Edge: close-range arc
+### Cloud Crane's Return: close-range arc
 
 The wind-up, formed slash, impact accent, and ink-like residue preserve a consistent silhouette and brightness hierarchy across the sequence.
 
-![Four-stage visual reference for Shaquan Returning Edge](docs/reference-images/01_shaquan_returning_edge.png)
+![Four-stage visual reference for Cloud Crane's Return](docs/reference-images/01_shaquan_returning_edge.png)
 
-### Frozen Domain: persistent ground zone
+### Mystic Ice Domain: persistent ground zone
 
 The effect establishes its boundary, freezes the ground, grows ice formations, and settles into an animated persistent state.
 
-![Four-stage visual reference for Bingheqi Frozen Domain](docs/reference-images/04_bingheqi_frozen_domain.png)
+![Four-stage visual reference for Mystic Ice Domain](docs/reference-images/04_bingheqi_frozen_domain.png)
 
-### Furnace Core: falling meteor impact
+### Celestial Meteor: falling meteor impact
 
 The warning seal, airborne meteor, ground impact, and scorched residue each communicate anticipation, travel, hit, and cleanup.
 
-![Four-stage visual reference for Celestial Furnace Core](docs/reference-images/06_yunshi_celestial_furnace_core.png)
+![Four-stage visual reference for Celestial Meteor](docs/reference-images/06_yunshi_celestial_furnace_core.png)
 
 ## Why this project exists
 
