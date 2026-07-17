@@ -1,4 +1,4 @@
-# Creating Game Combat VFX
+# Creating 2D Game Combat VFX
 
 [简体中文](README.md) | [English](README.en.md)
 
@@ -34,7 +34,7 @@ The local previewer brings together the effect list, stage playback, resource va
 
 ## Why this project exists
 
-Combat VFX often fail after otherwise-correct assets are connected to gameplay: projectiles are stretched instead of moved, trails detach from their parent, falling effects appear inside enemies, impacts freeze on their last frame, and bright textures become white blowouts. This Skill treats combat mechanics and presentation as separate systems so those problems can be fixed without changing damage, targeting, collision, penetration, buffs, or timing.
+Game VFX requirements should be defined and produced according to the game's visual style and the actual behavior of each ability, including its attack direction, range, and related gameplay constraints. This Skill separates combat mechanics from visual presentation, turns ability designs into visual concepts, develops those concepts step by step into production-ready effects, and finally integrates them into the project for an efficient VFX production workflow.
 
 ## What this skill covers
 

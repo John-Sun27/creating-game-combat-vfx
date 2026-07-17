@@ -54,3 +54,11 @@ test('bilingual repository introduction includes the VFX previewer screenshot', 
   assert.match(readmeEn, /### VFX previewer/);
   assert.match(readmeEn, /!\[Combat VFX previewer interface\]\(docs\/reference-images\/vfx_previewer\.png\)/);
 });
+
+test('English introduction mirrors the Chinese 2D positioning and production goal', () => {
+  assert.match(readmeZh, /^# 游戏战斗特效（2D）制作 Skill/m);
+  assert.match(readmeZh, /把技能设计转成为可视化效果/);
+  assert.match(readmeEn, /^# Creating 2D Game Combat VFX/m);
+  assert.match(readmeEn, /turns ability designs into visual concepts/i);
+  assert.match(readmeEn, /integrates them into the project/i);
+});
