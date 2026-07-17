@@ -1,12 +1,11 @@
 import fs from 'node:fs';
 import path from 'node:path';
+import { createRequire } from 'node:module';
+
+const require = createRequire(import.meta.url);
+const { ARCHETYPE_RULES, inspectEffect } = require('../tools/vfx-preview/preview-core.js');
 
 const manifestPath = process.argv[2];
-const archetypes = new Set([
-  'close-range-slash', 'projectile', 'projectile-volley', 'moving-front',
-  'falling', 'ground-eruption', 'persistent-zone', 'trap', 'target-brand',
-  'target-beam', 'shield-orbit',
-]);
 const requiredLayers = ['telegraph', 'body', 'impact', 'residue'];
 const errors = [];
 
@@ -36,15 +35,11 @@ if (manifest) {
       if (!effect?.key || !/^[a-z0-9_]+$/.test(effect.key)) errors.push(`${label}: invalid key`);
       if (keys.has(effect?.key)) errors.push(`${label}: duplicate key`);
       keys.add(effect?.key);
-      if (!archetypes.has(effect?.visualArchetype)) errors.push(`${label}: invalid visualArchetype`);
-      if (!(Number(effect?.scale) > 0)) errors.push(`${label}: scale must be positive`);
+      inspectEffect(effect).forEach((error) => errors.push(`${label}: ${error}`));
       requiredLayers.forEach((layerName) => {
         const layer = effect?.layers?.[layerName];
         if (!layer?.file || path.extname(layer.file).toLowerCase() !== '.png') {
           errors.push(`${label}: ${layerName}.file must be a PNG`);
-        }
-        if (!Number.isInteger(layer?.frames) || layer.frames < 1) {
-          errors.push(`${label}: ${layerName}.frames must be a positive integer`);
         }
       });
       if (!Array.isArray(effect?.acceptance) || !effect.acceptance.length) {
