@@ -63,9 +63,9 @@ references/asset-production.md        Sprite-sheet, alpha, and export standards
 references/runtime-integration.md     Motion archetypes and visual-state contracts
 references/config-and-export.md       Configuration and table export workflow
 references/qa-and-acceptance.md       Automated and visual acceptance criteria
-assets/effect-manifest.example.json   Reusable effect manifest template
+assets/effect-manifest.example.json   Internal effect manifest template used by the Skill
 docs/reference-images/                Combat VFX storyboard images used by the repository overview
-scripts/validate_effect_manifest.mjs  Deterministic manifest validator
+scripts/validate_effect_manifest.mjs  Deterministic internal manifest validator
 ```
 
 ## Usage
@@ -76,11 +76,21 @@ Install or link this folder in your Codex skills directory, then invoke:
 Use $creating-game-combat-vfx to design, produce, and integrate the complete combat VFX for this ability set.
 ```
 
-For a new effect set, copy `assets/effect-manifest.example.json`, fill in the effect definitions, and validate it:
+Ordinary users do not need to copy templates, edit JSON, or run commands. Describe the goal, scope, and whether game integration is required; the Skill handles the remaining workflow automatically.
 
-```bash
-node scripts/validate_effect_manifest.mjs path/to/effect-manifest.json
-```
+## Usage example
+
+The user provides only the goal and scope:
+
+> Use `$creating-game-combat-vfx` to design complete combat VFX for sword, fire, and water ability sets. Approve the visual direction first, then produce authored sprite assets and integrate them without changing existing damage mechanics. Expose scale and offsets for tuning, and verify every ability through the hidden GM panel.
+
+The Skill handles:
+
+- translating combat semantics into the correct motion archetypes;
+- designing keyframes and producing the required assets;
+- automatically creating, filling, and validating an internal effect manifest when useful;
+- integrating configuration, test access, and runtime presentation;
+- validating mechanics, playback, and device-scale visual quality.
 
 Read the reference file named by `SKILL.md` before performing each production stage. Do not declare completion until automated mechanics tests and final gameplay-scale visual captures both pass.
 

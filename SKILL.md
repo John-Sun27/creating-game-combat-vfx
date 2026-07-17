@@ -41,7 +41,7 @@ Never change combat mechanics to compensate for a visual positioning error.
 - Read `references/runtime-integration.md` before changing effect playback code.
 - Read `references/config-and-export.md` when spreadsheets, generated tables, or export tools are in scope.
 - Read `references/qa-and-acceptance.md` before claiming completion.
-- Copy `assets/effect-manifest.example.json` when defining a new effect set, then run `node scripts/validate_effect_manifest.mjs <manifest>`.
+- When structured tracking is useful, create an effect manifest automatically from `assets/effect-manifest.example.json`, fill it from the approved design, and run `node scripts/validate_effect_manifest.mjs <manifest>`. Fix recoverable validation errors before continuing. Do not ask the user to copy, fill, or validate the manifest.
 
 ## Completion gate
 

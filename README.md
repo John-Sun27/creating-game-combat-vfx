@@ -63,9 +63,9 @@ references/asset-production.md        序列帧、透明度和资源导出规范
 references/runtime-integration.md     播放模型与视觉状态协议
 references/config-and-export.md       配置表和导表工作流
 references/qa-and-acceptance.md       自动化与视觉验收标准
-assets/effect-manifest.example.json   可复用的特效清单模板
+assets/effect-manifest.example.json   Skill 内部使用的特效清单模板
 docs/reference-images/                仓库说明使用的战斗特效分镜参考图
-scripts/validate_effect_manifest.mjs  确定性特效清单校验工具
+scripts/validate_effect_manifest.mjs  Skill 内部使用的确定性清单校验工具
 ```
 
 ## 使用方法
@@ -76,11 +76,21 @@ scripts/validate_effect_manifest.mjs  确定性特效清单校验工具
 使用 $creating-game-combat-vfx 为这组技能设计、制作并接入完整战斗特效。
 ```
 
-制作新特效组时，复制 `assets/effect-manifest.example.json`，填写特效定义并执行校验：
+普通使用者无需复制模板、填写 JSON 或执行命令。只需描述目标、范围和是否需要接入游戏，其余步骤由 Skill 自动完成。
 
-```bash
-node scripts/validate_effect_manifest.mjs path/to/effect-manifest.json
-```
+## 使用示例
+
+用户只需提供目标与范围：
+
+> 使用 `$creating-game-combat-vfx` 为剑、火、水三组技能设计完整战斗特效。先完成视觉设计，再制作非程序化序列帧资源并接入游戏；保留现有伤害机制，增加可调大小与偏移，并通过隐藏 GM 面板逐个验收。
+
+Skill 自动完成：
+
+- 分析战斗语义并选择正确的运动模型；
+- 设计关键帧并制作所需资源；
+- 在需要时自动创建、填写和校验内部特效清单；
+- 接入配置、测试入口与运行时表现；
+- 验证战斗机制、资源播放和真机视觉效果。
 
 每个制作阶段开始前，根据 `SKILL.md` 的指引读取对应参考文件。只有自动化战斗机制测试和最终游戏比例截图验收都通过后，才能将特效标记为完成。
 
