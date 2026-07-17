@@ -39,7 +39,8 @@ h2 { font-size: 1rem; letter-spacing: .06em; }
 .badge.error { color: var(--red); background: rgba(255, 119, 119, .1); }
 
 .empty-hint { padding: 22px 16px; color: var(--muted); font-size: .82rem; line-height: 1.7; }
-.effect-list { display: grid; gap: 4px; padding: 8px; }
+.effects-panel { align-self: start; display: flex; flex-direction: column; max-height: calc(100vh - 140px); overflow: hidden; }
+.effect-list { display: grid; gap: 4px; min-height: 0; padding: 8px; overflow-y: auto; overscroll-behavior: contain; scrollbar-gutter: stable; }
 .effect-item { width: 100%; display: grid; gap: 5px; padding: 11px 12px; border: 1px solid transparent; border-radius: 7px; background: transparent; text-align: left; cursor: pointer; }
 .effect-item:hover { background: rgba(255, 255, 255, .04); }
 .effect-item.active { border-color: rgba(94, 225, 212, .4); background: rgba(94, 225, 212, .08); }
@@ -93,7 +94,7 @@ footer { padding: 4px 0 28px; color: var(--muted); font-size: .7rem; text-align:
 @media (max-width: 900px) {
   .app-header { align-items: stretch; flex-direction: column; }
   .workspace { grid-template-columns: 1fr; }
-  .effects-panel { order: 1; }
+  .effects-panel { order: 1; max-height: min(60vh, 620px); }
   .preview-column { order: 2; }
   .controls-panel { order: 3; }
   .effect-list { grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); }
