@@ -2,7 +2,7 @@
   'use strict';
 
   const ARCHETYPE_RULES = Object.freeze({
-    'close-range-slash': { bodyFrames: 4, motion: 'arc' },
+    'close-range-slash': { bodyFrames: 4, motion: 'static' },
     projectile: { bodyFrames: 6, motion: 'travel' },
     'projectile-volley': { bodyFrames: 6, motion: 'volley' },
     'moving-front': { bodyFrames: 6, motion: 'front' },

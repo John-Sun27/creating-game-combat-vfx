@@ -30,3 +30,7 @@ test('resource production emits preview metadata beside runtime assets automatic
   assert.match(readmeZh, /构建或导出流程.*effect-manifest\.preview\.json/);
   assert.match(readmeEn, /build or export pipeline.*effect-manifest\.preview\.json/i);
 });
+
+test('preview guidance keeps close-range sprite-sheet slashes anchored', () => {
+  assert.match(previewWorkflow, /close-range-slash.*anchored slash sequence/i);
+});

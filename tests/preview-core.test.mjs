@@ -79,7 +79,7 @@ test('lifecycle maps every archetype to its body motion', () => {
     return [visualArchetype, body.motion];
   }));
   assert.deepEqual(motions, {
-    'close-range-slash': 'arc',
+    'close-range-slash': 'static',
     projectile: 'travel',
     'projectile-volley': 'volley',
     'moving-front': 'front',
@@ -91,6 +91,13 @@ test('lifecycle maps every archetype to its body motion', () => {
     'target-beam': 'beam',
     'shield-orbit': 'orbit',
   });
+});
+
+test('close-range slash stays anchored because its arc is already painted into the sprite frames', () => {
+  const closeRange = { ...effect, visualArchetype: 'close-range-slash' };
+  const body = buildLifecycle(closeRange)[1];
+  assert.equal(body.motion, 'static');
+  assert.equal(buildStageInstances(closeRange, body)[0].motion, 'static');
 });
 
 test('only persistent body archetypes loop by default', () => {

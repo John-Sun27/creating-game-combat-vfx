@@ -18,7 +18,7 @@ Map archetypes to motion as follows:
 
 | Archetype | Preview motion |
 |---|---|
-| `close-range-slash` | staged arc |
+| `close-range-slash` | anchored slash sequence; the arc is already painted into the sprite frames |
 | `projectile` | fixed-size travel with attached trail |
 | `projectile-volley` | staggered multi-projectile travel |
 | `moving-front` | advancing wave or lane front |
