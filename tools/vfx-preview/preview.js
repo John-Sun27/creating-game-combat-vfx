@@ -260,7 +260,11 @@
     state.playing = timeline.playing;
     state.stageIndex = timeline.stageIndex;
     state.stageElapsed = timeline.stageElapsed;
-    state.lifecycle = entry.valid ? core.buildLifecycle(entry.effect) : [];
+    state.lifecycle = entry.valid
+      ? (entry.effect.preview?.layers
+        ? [{ name: 'runtime', durationMs: entry.effect.preview.durationMs, loop: false, motion: 'runtime' }]
+        : core.buildLifecycle(entry.effect))
+      : [];
     refs.effectList.querySelectorAll('.effect-item').forEach((button) => {
       button.classList.toggle('active', button.dataset.effectId === entry.id);
     });
@@ -290,8 +294,8 @@
     const maxWidth = 250;
     const maxHeight = 340;
     const fit = Math.min(maxWidth / frameWidth, maxHeight / resource.height, 1);
-    layer.style.width = `${frameWidth * fit}px`;
-    layer.style.height = `${resource.height * fit}px`;
+    layer.style.width = `${instance.width || frameWidth * fit}px`;
+    layer.style.height = `${instance.height || resource.height * fit}px`;
     refs.previewStage.append(layer);
   }
 
@@ -315,7 +319,12 @@
     const userScale = Number(refs.scaleInput.value);
     const offsetX = Number(effect.offsetX || 0) + Number(refs.offsetXInput.value);
     const offsetY = Number(effect.offsetY || 0) + Number(refs.offsetYInput.value);
-    const instances = core.buildStageInstances(effect, stage);
+    const configuredInstances = stage.name === 'runtime'
+      ? core.buildPreviewInstances(effect, state.stageElapsed)
+      : [];
+    const instances = configuredInstances.length
+      ? configuredInstances
+      : core.buildStageInstances(effect, stage);
     syncInstanceNodes(state.current, instances);
     const frameLabels = [];
 
@@ -323,13 +332,15 @@
       const node = Array.from(refs.previewStage.querySelectorAll('.sprite-layer'))
         .find((candidate) => candidate.dataset.instanceId === instance.id);
       if (!node) return;
-      const instanceState = core.instanceProgress(stage, state.stageElapsed, instance);
+      const instanceState = stage.name === 'runtime'
+        ? { visible: true, elapsedMs: instance.elapsedMs, progress: instance.localProgress }
+        : core.instanceProgress(stage, state.stageElapsed, instance);
       const frameCount = effect.layers[instance.layerName].frames;
       const frameIndex = core.sampleSpriteFrame(
         frameCount,
         instanceState.elapsedMs,
         Number(refs.fpsInput.value),
-        stage.loop && refs.loopInput.checked,
+        ((stage.loop || previewProfile.displayMode === 'persistent-ground') && refs.loopInput.checked),
       );
       const style = core.spriteFrameStyle(frameCount, frameIndex);
       node.hidden = !instanceState.visible;
@@ -338,14 +349,12 @@
       node.style.backgroundPosition = style.backgroundPosition;
       node.style.opacity = stage.name === 'residue' ? String(1 - instanceState.progress * .7) : '1';
       const instanceIndex = Number(instance.id.split('-').pop()) || 0;
-      const pose = stage.name === 'body'
-        ? core.motionPose(previewProfile, instanceState.progress, instanceIndex)
-        : core.motionPose({ ...previewProfile, motion: 'static' }, instanceState.progress, instanceIndex);
+      const pose = core.composePreviewPose(previewProfile, instance, instanceState.progress, instanceIndex);
       const scale = Number(effect.scale) * userScale;
       node.style.transform = `translate(-50%, -50%) translate(${offsetX + instance.offsetX + pose.x}px, ${offsetY + instance.offsetY + pose.y}px) rotate(${pose.rotationDeg}deg) scale(${pose.scaleX * scale}, ${pose.scaleY * scale})`;
       frameLabels.push(`${frameIndex + 1} / ${frameCount}`);
     });
-    refs.stageName.textContent = `${stage.name} · ${stage.name === 'body' ? previewProfile.motion : stage.motion}`;
+    refs.stageName.textContent = `${stage.name} · ${stage.name === 'runtime' || stage.name === 'body' ? previewProfile.motion : stage.motion}`;
     refs.frameName.textContent = frameLabels.length > 1
       ? `${frameLabels[0]} · ${frameLabels.length} instances`
       : (frameLabels[0] || '—');

@@ -7,7 +7,9 @@ const {
   ARCHETYPE_RULES,
   advanceTimeline,
   buildLifecycle,
+  buildPreviewInstances,
   buildStageInstances,
+  composePreviewPose,
   inspectEffect,
   instanceProgress,
   motionPose,
@@ -155,6 +157,56 @@ test('moving front changes position without resizing the sprite', () => {
   const end = motionPose({ motion: 'front', directionDeg: 90, distance: 300 }, 1);
   assert.deepEqual([start.scaleX, start.scaleY, end.scaleX, end.scaleY], [1, 1, 1, 1]);
   assert.deepEqual([Math.round(start.y), Math.round(end.y)], [-150, 150]);
+});
+
+test('configured choreography overlaps semantic layers', () => {
+  const configured = structuredClone(effect);
+  configured.preview = {
+    durationMs: 1000,
+    layers: {
+      telegraph: { start: 0, end: .35, anchor: 'origin', width: 90, height: 60 },
+      body: { start: .15, end: .7, anchor: 'moving', width: 54, height: 74 },
+      impact: { start: .55, end: .82, anchor: 'target', width: 96, height: 96 },
+      residue: { start: .72, end: 1, anchor: 'target', width: 90, height: 56 },
+    },
+  };
+  assert.deepEqual(buildPreviewInstances(configured, 200).map((entry) => entry.layerName), ['telegraph', 'body']);
+  const bodyProgress = buildPreviewInstances(configured, 600).find((entry) => entry.layerName === 'body').localProgress;
+  assert.ok(Math.abs(bodyProgress - (0.6 - 0.15) / 0.55) < 1e-12);
+});
+
+test('legacy effects report no configured choreography', () => {
+  assert.deepEqual(buildPreviewInstances(effect, 0), []);
+});
+
+test('target-anchored falling body travels from above to the target', () => {
+  const profile = { motion: 'fall', directionDeg: 90, distance: 300 };
+  const instance = { layerName: 'body', anchor: 'target' };
+  assert.deepEqual(
+    [composePreviewPose(profile, instance, 0).y, composePreviewPose(profile, instance, 1).y],
+    [-150, 150],
+  );
+});
+
+test('manual profile motion overrides configured body motion', () => {
+  const profile = { motion: 'static', directionDeg: 90, distance: 300 };
+  const instance = { layerName: 'body', anchor: 'moving', motion: 'travel' };
+  assert.equal(composePreviewPose(profile, instance, 1).y, 0);
+});
+
+test('configured projectile volley creates five staggered body instances', () => {
+  const configured = structuredClone(effect);
+  configured.visualArchetype = 'projectile-volley';
+  configured.preview = {
+    durationMs: 1000,
+    motion: 'volley',
+    layers: { body: { start: .08, end: .66, anchor: 'moving', count: 5, stagger: .08 } },
+  };
+  assert.equal(buildPreviewInstances(configured, 450).length, 5);
+  assert.deepEqual(
+    buildPreviewInstances(configured, 450).map((entry) => entry.id),
+    ['body-runtime-0', 'body-runtime-1', 'body-runtime-2', 'body-runtime-3', 'body-runtime-4'],
+  );
 });
 
 test('only persistent body archetypes loop by default', () => {

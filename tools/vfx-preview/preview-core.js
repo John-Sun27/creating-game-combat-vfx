@@ -156,6 +156,64 @@
     return [{ id: `${stage.name}-0`, ...base }];
   }
 
+  function buildPreviewInstances(effect, elapsedMs) {
+    const choreography = effect?.preview?.layers;
+    if (!choreography || typeof choreography !== 'object') return [];
+    const durationMs = Math.max(1, Number(effect.preview.durationMs) || 1);
+    const progress = Math.max(0, Math.min(1, Number(elapsedMs) / durationMs));
+    return REQUIRED_LAYERS.flatMap((layerName) => {
+      const config = choreography[layerName];
+      if (!config) return [];
+      const start = Math.max(0, Math.min(1, Number(config.start) || 0));
+      const end = Math.max(start, Math.min(1, Number(config.end) || 1));
+      const count = Math.max(1, Math.floor(Number(config.count)
+        || (layerName === 'body' && effect.visualArchetype === 'projectile-volley' ? 5 : 1)));
+      const stagger = Math.max(0, Number(config.stagger)
+        || (count > 1 ? .08 : 0));
+      return Array.from({ length: count }, (_, index) => {
+        const instanceStart = start + index * stagger;
+        const instanceEnd = end + index * stagger;
+        if (progress < instanceStart || progress > instanceEnd) return null;
+        const localProgress = (progress - instanceStart) / Math.max(.000001, instanceEnd - instanceStart);
+        return {
+          id: count > 1 ? `${layerName}-runtime-${index}` : `${layerName}-runtime`,
+          layerName,
+          motion: config.motion || (layerName === 'body' ? effect.preview.motion : 'static'),
+          anchor: config.anchor || (layerName === 'body' ? 'moving' : 'target'),
+          width: Number(config.width) || undefined,
+          height: Number(config.height) || undefined,
+          localProgress,
+          elapsedMs: localProgress * (end - start) * durationMs,
+          delayMs: 0,
+          offsetX: Number(config.offsetX) || 0,
+          offsetY: Number(config.offsetY) || 0,
+          fixed: layerName !== 'body',
+        };
+      }).filter(Boolean);
+    });
+  }
+
+  function composePreviewPose(profile, instance, progress, instanceIndex = 0) {
+    const origin = motionPose({ ...profile, motion: 'travel' }, 0);
+    const target = motionPose({ ...profile, motion: 'travel' }, 1);
+    const anchor = instance?.anchor === 'origin'
+      ? origin
+      : instance?.anchor === 'target' ? target : { x: 0, y: 0, rotationDeg: 0 };
+    const moving = instance?.layerName === 'body';
+    const pose = motionPose(
+      { ...profile, motion: moving ? profile.motion : 'static' },
+      progress,
+      instanceIndex,
+    );
+    return {
+      x: anchor.x + pose.x,
+      y: anchor.y + pose.y,
+      rotationDeg: pose.rotationDeg,
+      scaleX: pose.scaleX,
+      scaleY: pose.scaleY,
+    };
+  }
+
   function instanceProgress(stage, elapsedMs, instance) {
     const activeElapsed = elapsedMs - instance.delayMs;
     const activeDuration = Math.max(1, stage.durationMs - instance.delayMs);
@@ -297,7 +355,9 @@
     ARCHETYPE_RULES,
     advanceTimeline,
     buildLifecycle,
+    buildPreviewInstances,
     buildStageInstances,
+    composePreviewPose,
     inspectEffect,
     instanceProgress,
     motionPose,

@@ -16,7 +16,8 @@ test('page exposes project default and manual display controls', () => {
     assert.match(html, new RegExp(`id=["']${id}["']`));
   }
   assert.match(js, /core\.resolvePreviewProfile/);
-  assert.match(js, /core\.motionPose/);
+  assert.match(js, /core\.buildPreviewInstances/);
+  assert.match(js, /core\.composePreviewPose/);
 });
 
 test('manual display overrides reset when switching effects or pressing reset', () => {
