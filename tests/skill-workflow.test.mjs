@@ -3,10 +3,12 @@ import assert from 'node:assert/strict';
 import fs from 'node:fs';
 
 const skill = fs.readFileSync(new URL('../SKILL.md', import.meta.url), 'utf8');
+const assetProduction = fs.readFileSync(new URL('../references/asset-production.md', import.meta.url), 'utf8');
 const previewWorkflow = fs.readFileSync(new URL('../references/preview-workflow.md', import.meta.url), 'utf8');
 const readmeZh = fs.readFileSync(new URL('../README.md', import.meta.url), 'utf8');
 const readmeEn = fs.readFileSync(new URL('../README.en.md', import.meta.url), 'utf8');
 const previewScreenshot = new URL('../docs/reference-images/vfx_previewer.png', import.meta.url);
+const sourceGridValidator = new URL('../scripts/validate_sprite_source_grid.py', import.meta.url);
 
 test('full requests present a selectable seven-stage workflow', () => {
   for (const phrase of ['seven stages', 'execute all', 'first N stages', 'specific stages', 'continue from stage']) {
@@ -45,6 +47,16 @@ test('bilingual docs explain project defaults and non-mutating manual overrides'
   assert.match(readmeEn, /does not modify.*files/i);
   assert.match(previewWorkflow, /manifest.*user overrides/i);
   assert.match(previewWorkflow, /final.*in-game validation/i);
+});
+
+test('asset production blocks clipped source-grid cells before sprite slicing', () => {
+  assert.match(skill, /source-grid boundary validator/i);
+  assert.match(skill, /source-grid cell has clear safe margin/i);
+  assert.match(assetProduction, /safe margins.*mandatory/i);
+  assert.match(assetProduction, /12%/);
+  assert.match(assetProduction, /validate_sprite_source_grid\.py/);
+  assert.match(assetProduction, /regenerate.*source/i);
+  assert.equal(fs.existsSync(sourceGridValidator), true);
 });
 
 test('bilingual repository introduction includes the VFX previewer screenshot', () => {

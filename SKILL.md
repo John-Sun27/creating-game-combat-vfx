@@ -19,7 +19,7 @@ For an explicit partial request, enter the matching stage directly. Add only the
 
 1. **Requirements analysis.** Record skill semantics, target scope, project constraints, existing assets, renderer, configuration, tests, and debug entry points.
 2. **Visual design.** Define art direction, a four-stage storyboard, and acceptance criteria. Visual design must pause for approval by default.
-3. **Asset production.** Produce transparent sprite sequences and layered resources from the approved design, plus the effect manifest.
+3. **Asset production.** Produce transparent sprite sequences and layered resources from the approved design, run the source-grid boundary validator before slicing, and create the effect manifest.
 4. **Resource preview.** Load the resources through the local previewer, report issues, and record adjustment decisions. Resource preview must pause for approval by default.
 5. **Game integration.** Connect approved assets to motion models, anchors, lifecycle events, and authoritative tuning without changing combat mechanics.
 6. **Test tooling.** Add independent GM/debug playback and verify configuration export.
@@ -49,7 +49,7 @@ Never change combat mechanics to compensate for a visual positioning error.
 ## Resource routing
 
 - Read `references/visual-design.md` before concept or storyboard work.
-- Read `references/asset-production.md` before generating, slicing, or exporting sprite assets.
+- Read `references/asset-production.md` before generating, slicing, or exporting sprite assets. Run its source-grid boundary validator on every source sheet before slicing.
 - Read `references/preview-workflow.md` completely before any resource preview work.
 - Read `references/runtime-integration.md` before changing effect playback code.
 - Read `references/config-and-export.md` when spreadsheets, generated tables, or export tools are in scope.
@@ -66,6 +66,7 @@ Do not call the effect complete until:
 - falling bodies visibly enter from above while telegraphs stay on the ground;
 - impacts occur at the configured foot/ground anchor and expire once;
 - persistent zones animate for their full duration;
+- every source-grid cell has clear safe margin and passes the source-grid boundary validator before slicing;
 - core color remains legible without additive white blowout;
 - configuration export reports changed tables and runtime values match the source;
 - combat regression tests prove mechanics did not change;
@@ -81,3 +82,4 @@ Do not call the effect complete until:
 | Different spells feel identical | Replace the generic point timeline with semantic archetypes. |
 | Workbook changes do not appear | Confirm the authoritative sheet, exported table, runtime consumer, and `[UPDATED]` result. |
 | Effect looks pale | Keep the core near opaque; reserve transparency for smoke, edge glow, and residue. |
+| Frame is cut at both sides after slicing | Regenerate the source-grid cell with clean safety margins; never hide a clipped source with runtime scale or atlas padding. |
