@@ -399,7 +399,7 @@ Use `run all stages`, `complete the first three stages`, `only stages 2 and 4`, 
 ```powershell
 $node='C:\Users\soult\.cache\codex-runtimes\codex-primary-runtime\dependencies\node\bin\node.exe'
 $py='C:\Users\soult\.cache\codex-runtimes\codex-primary-runtime\dependencies\python\python.exe'
-& $node --test '.\tests\skill-workflow.test.mjs' '.\tests\preview-core.test.mjs' '.\tests\preview-page.test.mjs'
+& $node --test
 & $node '.\scripts\validate_effect_manifest.mjs' '.\assets\effect-manifest.example.json'
 $env:PYTHONPATH=(Resolve-Path '..\.codex_tmp\skill_pydeps').Path
 & $py 'C:\Users\soult\.codex\skills\.system\skill-creator\scripts\quick_validate.py' '.'

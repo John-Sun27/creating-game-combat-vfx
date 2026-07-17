@@ -19,7 +19,17 @@ test('preview uses DOM sprites and no canvas', () => {
   assert.match(js, /sprite-layer/);
 });
 
-test('page loads browser-safe loader helpers before the preview runtime', () => {
-  assert.match(html, /<script src=["']preview-loader\.js["']><\/script>\s*<script src=["']preview\.js["']><\/script>/);
+test('page loads the complete classic script chain in core, loader, runtime order', () => {
+  assert.match(html, /<script src=["']preview-core\.js["']><\/script>\s*<script src=["']preview-loader\.js["']><\/script>\s*<script src=["']preview\.js["']><\/script>/);
   assert.doesNotMatch(html, /type=["']module["']/i);
+});
+
+test('runtime renders archetype instances and advances the lifecycle with real delta', () => {
+  assert.match(js, /core\.buildStageInstances\(/);
+  assert.match(js, /core\.instanceProgress\(/);
+  assert.match(js, /core\.sampleSpriteFrame\(/);
+  assert.match(js, /core\.advanceTimeline\(/);
+  assert.match(js, /advance\(delta\)/);
+  assert.doesNotMatch(js, /advance\(delta\s*\*\s*Number\(refs\.fpsInput\.value\)/);
+  assert.doesNotMatch(js, /advance\(1000\s*\/\s*Number\(refs\.fpsInput\.value\)\)/);
 });

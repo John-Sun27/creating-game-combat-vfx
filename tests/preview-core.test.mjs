@@ -5,9 +5,13 @@ import { createRequire } from 'node:module';
 const require = createRequire(import.meta.url);
 const {
   ARCHETYPE_RULES,
+  advanceTimeline,
   buildLifecycle,
+  buildStageInstances,
   inspectEffect,
+  instanceProgress,
   parsePngHeader,
+  sampleSpriteFrame,
   spriteFrameStyle,
 } = require('../tools/vfx-preview/preview-core.js');
 
@@ -123,6 +127,66 @@ test('effect inspection reports insufficient moving-body frames', () => {
 
 test('effect inspection accepts a complete valid effect', () => {
   assert.deepEqual(inspectEffect(effect), []);
+});
+
+test('effect inspection rejects non-finite and non-positive optional layer durations', () => {
+  for (const durationMs of [0, -1, Number.NaN, Number.POSITIVE_INFINITY, '500']) {
+    const invalid = structuredClone(effect);
+    invalid.layers.body.durationMs = durationMs;
+    assert.match(
+      inspectEffect(invalid).join('\n'),
+      /body\.durationMs must be a finite positive number/i,
+    );
+  }
+});
+
+test('effect inspection accepts finite positive optional layer durations', () => {
+  const custom = structuredClone(effect);
+  custom.layers.telegraph.durationMs = 0.5;
+  custom.layers.body.durationMs = 1200;
+  assert.deepEqual(inspectEffect(custom), []);
+  assert.equal(buildLifecycle(custom)[0].durationMs, 0.5);
+  assert.equal(buildLifecycle(custom)[1].durationMs, 1200);
+});
+
+test('falling body scene retains a fixed telegraph beneath the moving body', () => {
+  const falling = { ...effect, visualArchetype: 'falling' };
+  const stage = buildLifecycle(falling)[1];
+  assert.deepEqual(buildStageInstances(falling, stage), [
+    { id: 'body-telegraph', layerName: 'telegraph', motion: 'static', delayMs: 0, offsetX: 0, offsetY: 0, fixed: true },
+    { id: 'body-0', layerName: 'body', motion: 'fall', delayMs: 0, offsetX: 0, offsetY: 0, fixed: false },
+  ]);
+});
+
+test('projectile volley body scene creates five staggered horizontally offset bodies', () => {
+  const volley = { ...effect, visualArchetype: 'projectile-volley' };
+  const stage = buildLifecycle(volley)[1];
+  const instances = buildStageInstances(volley, stage);
+  assert.equal(instances.length, 5);
+  assert.deepEqual(instances.map(({ layerName }) => layerName), Array(5).fill('body'));
+  assert.deepEqual(instances.map(({ delayMs }) => delayMs), [0, 90, 180, 270, 360]);
+  assert.deepEqual(instances.map(({ offsetX }) => offsetX), [-48, -24, 0, 24, 48]);
+  assert.equal(instanceProgress(stage, 100, instances[2]).visible, false);
+  assert.equal(instanceProgress(stage, 180, instances[2]).visible, true);
+});
+
+test('sprite FPS changes frame sampling without changing real-time lifecycle progress', () => {
+  const lifecycle = buildLifecycle(effect);
+  const initial = { stageIndex: 0, stageElapsed: 0, playing: true };
+  const at12Fps = advanceTimeline(initial, lifecycle, 250, false);
+  const at48Fps = advanceTimeline(initial, lifecycle, 250, false);
+
+  assert.deepEqual(at12Fps, at48Fps);
+  assert.deepEqual(at12Fps, { stageIndex: 0, stageElapsed: 250, playing: true });
+  assert.notEqual(sampleSpriteFrame(8, 250, 12, false), sampleSpriteFrame(8, 250, 48, false));
+});
+
+test('timeline crosses lifecycle stages using unscaled real milliseconds', () => {
+  const lifecycle = buildLifecycle(effect);
+  assert.deepEqual(
+    advanceTimeline({ stageIndex: 0, stageElapsed: 450, playing: true }, lifecycle, 100, false),
+    { stageIndex: 1, stageElapsed: 50, playing: true },
+  );
 });
 
 test('effect inspection validates archetype and positive scale', () => {

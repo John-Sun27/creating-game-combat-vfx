@@ -41,6 +41,84 @@
     }));
   }
 
+  function buildStageInstances(effect, stage) {
+    const base = {
+      layerName: stage.name,
+      motion: stage.motion,
+      delayMs: 0,
+      offsetX: 0,
+      offsetY: 0,
+      fixed: false,
+    };
+
+    if (stage.name === 'body' && effect?.visualArchetype === 'falling') {
+      return [
+        { id: 'body-telegraph', ...base, layerName: 'telegraph', motion: 'static', fixed: true },
+        { id: 'body-0', ...base },
+      ];
+    }
+
+    if (stage.name === 'body' && effect?.visualArchetype === 'projectile-volley') {
+      return [-48, -24, 0, 24, 48].map((offsetX, index) => ({
+        id: `body-${index}`,
+        ...base,
+        delayMs: index * 90,
+        offsetX,
+      }));
+    }
+
+    return [{ id: `${stage.name}-0`, ...base }];
+  }
+
+  function instanceProgress(stage, elapsedMs, instance) {
+    const activeElapsed = elapsedMs - instance.delayMs;
+    const activeDuration = Math.max(1, stage.durationMs - instance.delayMs);
+    return {
+      visible: activeElapsed >= 0,
+      elapsedMs: Math.max(0, activeElapsed),
+      progress: Math.max(0, Math.min(1, activeElapsed / activeDuration)),
+    };
+  }
+
+  function sampleSpriteFrame(frameCount, elapsedMs, fps, loop) {
+    if (!Number.isInteger(frameCount) || frameCount < 1) {
+      throw new RangeError('frameCount must be a positive integer');
+    }
+    if (!Number.isFinite(fps) || fps <= 0) {
+      throw new RangeError('fps must be a finite positive number');
+    }
+    const sampled = Math.max(0, Math.floor(Math.max(0, elapsedMs) * fps / 1000));
+    return loop ? sampled % frameCount : Math.min(frameCount - 1, sampled);
+  }
+
+  function advanceTimeline(timeline, lifecycle, deltaMs, loopEnabled) {
+    let stageIndex = timeline.stageIndex;
+    let stageElapsed = timeline.stageElapsed + Math.max(0, deltaMs);
+    let playing = timeline.playing;
+
+    while (stageElapsed >= lifecycle[stageIndex].durationMs) {
+      const stage = lifecycle[stageIndex];
+      if (stage.loop && loopEnabled) {
+        stageElapsed %= stage.durationMs;
+        break;
+      }
+      stageElapsed -= stage.durationMs;
+      stageIndex += 1;
+      if (stageIndex < lifecycle.length) continue;
+      if (!loopEnabled) {
+        stageIndex = lifecycle.length - 1;
+        stageElapsed = lifecycle[stageIndex].durationMs;
+        playing = false;
+        break;
+      }
+      stageIndex = 0;
+      const cycleDuration = lifecycle.reduce((total, entry) => total + entry.durationMs, 0);
+      stageElapsed %= cycleDuration;
+    }
+
+    return { stageIndex, stageElapsed, playing };
+  }
+
   function inspectEffect(effect) {
     const errors = [];
     const rule = ARCHETYPE_RULES[effect?.visualArchetype];
@@ -57,6 +135,9 @@
       if (!Number.isInteger(layer.frames) || layer.frames < 1) {
         errors.push(`${layerName}.frames must be a positive integer`);
         continue;
+      }
+      if ('durationMs' in layer && (!Number.isFinite(layer.durationMs) || layer.durationMs <= 0)) {
+        errors.push(`${layerName}.durationMs must be a finite positive number`);
       }
 
       const minimumFrames = layerName === 'body' ? rule?.bodyFrames : 4;
@@ -115,7 +196,17 @@
     };
   }
 
-  const api = { ARCHETYPE_RULES, buildLifecycle, inspectEffect, parsePngHeader, spriteFrameStyle };
+  const api = {
+    ARCHETYPE_RULES,
+    advanceTimeline,
+    buildLifecycle,
+    buildStageInstances,
+    inspectEffect,
+    instanceProgress,
+    parsePngHeader,
+    sampleSpriteFrame,
+    spriteFrameStyle,
+  };
   if (typeof module !== 'undefined' && module.exports) module.exports = api;
   else globalScope.VfxPreviewCore = api;
 }(globalThis));

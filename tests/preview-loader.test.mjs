@@ -87,3 +87,19 @@ test('malformed effects become isolated records with safe labels', () => {
   assert.equal(records[3].label, 'broken_layers');
   assert.match(records[3].configErrors.join('\n'), /layer is required/i);
 });
+
+test('invalid duration blocks only its effect record within a directory', () => {
+  const invalidDuration = validEffect('invalid_duration');
+  invalidDuration.layers.body.durationMs = Number.POSITIVE_INFINITY;
+
+  const records = createEffectRecords([
+    validEffect('before'),
+    invalidDuration,
+    validEffect('after'),
+  ], inspectEffect);
+
+  assert.equal(records.length, 3);
+  assert.deepEqual(records[0].configErrors, []);
+  assert.match(records[1].configErrors.join('\n'), /body\.durationMs must be a finite positive number/i);
+  assert.deepEqual(records[2].configErrors, []);
+});

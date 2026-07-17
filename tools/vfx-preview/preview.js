@@ -213,7 +213,6 @@
     renderIssues(entry);
     clearStage();
     if (entry.valid) {
-      layerNames.forEach((layerName) => createLayer(entry, layerName));
       refs.stageHint.hidden = true;
       renderFrame();
     } else {
@@ -223,14 +222,15 @@
     updateButtons();
   }
 
-  function createLayer(entry, layerName) {
-    const resource = entry.resources[layerName];
+  function createInstanceNode(entry, instance) {
+    const resource = entry.resources[instance.layerName];
     if (!resource) return;
     const layer = document.createElement('div');
-    layer.className = `sprite-layer layer-${layerName}`;
-    layer.dataset.layer = layerName;
+    layer.className = `sprite-layer layer-${instance.layerName}`;
+    layer.dataset.instanceId = instance.id;
+    layer.dataset.layer = instance.layerName;
     layer.setAttribute('role', 'img');
-    layer.setAttribute('aria-label', `${entry.effect.key} ${layerName}`);
+    layer.setAttribute('aria-label', `${entry.effect.key} ${instance.layerName}`);
     layer.style.backgroundImage = `url("${resource.url}")`;
     const frameWidth = resource.width / resource.frames;
     const maxWidth = 250;
@@ -239,6 +239,18 @@
     layer.style.width = `${frameWidth * fit}px`;
     layer.style.height = `${resource.height * fit}px`;
     refs.previewStage.append(layer);
+  }
+
+  function syncInstanceNodes(entry, instances) {
+    const wanted = new Set(instances.map((instance) => instance.id));
+    const nodes = new Map();
+    refs.previewStage.querySelectorAll('.sprite-layer').forEach((node) => {
+      if (!wanted.has(node.dataset.instanceId)) node.remove();
+      else nodes.set(node.dataset.instanceId, node);
+    });
+    instances.forEach((instance) => {
+      if (!nodes.has(instance.id)) createInstanceNode(entry, instance);
+    });
   }
 
   function motionTransform(motion, progress) {
@@ -265,48 +277,47 @@
   function renderFrame() {
     if (!state.current || !state.current.valid || !state.lifecycle.length) return;
     const stage = state.lifecycle[state.stageIndex];
-    const progress = Math.min(1, state.stageElapsed / stage.durationMs);
     const effect = state.current.effect;
     const userScale = Number(refs.scaleInput.value);
     const offsetX = Number(effect.offsetX || 0) + Number(refs.offsetXInput.value);
     const offsetY = Number(effect.offsetY || 0) + Number(refs.offsetYInput.value);
-    const layer = effect.layers[stage.name];
-    const frameCount = layer.frames;
-    const frameIndex = Math.min(frameCount - 1, Math.floor(progress * frameCount));
-    const style = core.spriteFrameStyle(frameCount, frameIndex);
+    const instances = core.buildStageInstances(effect, stage);
+    syncInstanceNodes(state.current, instances);
+    const frameLabels = [];
 
-    refs.previewStage.querySelectorAll('.sprite-layer').forEach((node) => {
-      const active = node.dataset.layer === stage.name;
-      node.hidden = !active;
-      if (!active) return;
+    instances.forEach((instance) => {
+      const node = Array.from(refs.previewStage.querySelectorAll('.sprite-layer'))
+        .find((candidate) => candidate.dataset.instanceId === instance.id);
+      if (!node) return;
+      const instanceState = core.instanceProgress(stage, state.stageElapsed, instance);
+      const frameCount = effect.layers[instance.layerName].frames;
+      const frameIndex = core.sampleSpriteFrame(
+        frameCount,
+        instanceState.elapsedMs,
+        Number(refs.fpsInput.value),
+        stage.loop && refs.loopInput.checked,
+      );
+      const style = core.spriteFrameStyle(frameCount, frameIndex);
+      node.hidden = !instanceState.visible;
+      if (!instanceState.visible) return;
       node.style.backgroundSize = style.backgroundSize;
       node.style.backgroundPosition = style.backgroundPosition;
-      node.style.opacity = stage.name === 'residue' ? String(1 - progress * .7) : '1';
-      node.style.transform = `translate(-50%, -50%) translate(${offsetX}px, ${offsetY}px) ${motionTransform(stage.motion, progress)} scale(${Number(effect.scale) * userScale})`;
+      node.style.opacity = stage.name === 'residue' ? String(1 - instanceState.progress * .7) : '1';
+      node.style.transform = `translate(-50%, -50%) translate(${offsetX + instance.offsetX}px, ${offsetY + instance.offsetY}px) ${motionTransform(instance.motion, instanceState.progress)} scale(${Number(effect.scale) * userScale})`;
+      frameLabels.push(`${frameIndex + 1} / ${frameCount}`);
     });
     refs.stageName.textContent = `${stage.name} · ${stage.motion}`;
-    refs.frameName.textContent = `${frameIndex + 1} / ${frameCount}`;
+    refs.frameName.textContent = frameLabels.length > 1
+      ? `${frameLabels[0]} · ${frameLabels.length} instances`
+      : (frameLabels[0] || '—');
   }
 
   function advance(deltaMs) {
     if (!state.current || !state.current.valid) return;
-    state.stageElapsed += deltaMs;
-    let guard = 0;
-    while (guard++ < 20) {
-      const stage = state.lifecycle[state.stageIndex];
-      if (state.stageElapsed < stage.durationMs) break;
-      state.stageElapsed -= stage.durationMs;
-      if (stage.loop && refs.loopInput.checked) continue;
-      state.stageIndex += 1;
-      if (state.stageIndex < state.lifecycle.length) continue;
-      if (refs.loopInput.checked) state.stageIndex = 0;
-      else {
-        state.stageIndex = state.lifecycle.length - 1;
-        state.stageElapsed = state.lifecycle[state.stageIndex].durationMs;
-        state.playing = false;
-        break;
-      }
-    }
+    const timeline = core.advanceTimeline(state, state.lifecycle, deltaMs, refs.loopInput.checked);
+    state.stageIndex = timeline.stageIndex;
+    state.stageElapsed = timeline.stageElapsed;
+    state.playing = timeline.playing;
     renderFrame();
     updateButtons();
   }
@@ -331,9 +342,9 @@
 
   function animationTick(timestamp) {
     if (state.playing) {
-      const delta = state.lastTick ? Math.min(timestamp - state.lastTick, 100) : 0;
+      const delta = state.lastTick ? Math.max(0, timestamp - state.lastTick) : 0;
       state.lastTick = timestamp;
-      advance(delta * Number(refs.fpsInput.value) / 24);
+      advance(delta);
     } else {
       state.lastTick = timestamp;
     }
@@ -351,11 +362,9 @@
   refs.restartButton.addEventListener('click', () => restart(true));
   refs.stepButton.addEventListener('click', () => {
     state.playing = false;
-    const stage = state.lifecycle[state.stageIndex];
-    const frames = state.current.effect.layers[stage.name].frames;
-    advance(stage.durationMs / frames);
+    advance(1000 / 60);
   });
-  refs.fpsInput.addEventListener('input', () => { refs.fpsValue.textContent = refs.fpsInput.value; });
+  refs.fpsInput.addEventListener('input', () => { refs.fpsValue.textContent = refs.fpsInput.value; renderFrame(); });
   refs.scaleInput.addEventListener('input', () => { refs.scaleValue.textContent = `${Number(refs.scaleInput.value).toFixed(2)}×`; renderFrame(); });
   refs.offsetXInput.addEventListener('input', () => { refs.offsetXValue.textContent = refs.offsetXInput.value; renderFrame(); });
   refs.offsetYInput.addEventListener('input', () => { refs.offsetYValue.textContent = refs.offsetYInput.value; renderFrame(); });
