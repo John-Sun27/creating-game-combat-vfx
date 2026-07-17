@@ -9,17 +9,29 @@ description: Use when a game needs combat spell or skill VFX designed, produced 
 
 Build readable, distinctive combat effects from visual brief through production integration. Keep gameplay mechanics authoritative and treat animation, anchors, trails, opacity, and impact timing as a separate presentation system.
 
-## Core workflow
+## Request routing
 
-1. **Audit context.** Inspect camera angle, battlefield scale, character and enemy anchors, existing effect renderer, configuration source, export tool, tests, and debug entry points. Preserve user changes.
-2. **Define spell semantics.** For every effect, record cast origin, target rule, damage shape, motion, impact point, persistence, and gameplay timing. Choose one motion archetype from `references/runtime-integration.md`.
-3. **Create a visual design sheet.** Produce a four-stage storyboard: anticipation, travel/build, impact, residue. Establish element palette, value hierarchy, silhouette, scale, and exposure limits. Read `references/visual-design.md`.
-4. **Approve the direction once.** Present representative keyframes and acceptance criteria. After approval, produce the complete set without repeated micro-confirmations.
-5. **Produce assets.** Use transparent sprite sheets or authored particle textures; do not substitute stretched static art for travel. Follow `references/asset-production.md`.
-6. **Integrate presentation actors.** Keep damage, targeting, penetration, and ticks unchanged. Attach trails to moving bodies, separate falling bodies from locked ground anchors, timestamp impact events, and loop persistent ground effects. Read `references/runtime-integration.md` completely before editing runtime code.
-7. **Expose tuning.** Add scale and visual offsets to the authoritative configuration source, then export and verify the runtime output. Follow `references/config-and-export.md`.
-8. **Add a test surface.** Prefer a hidden GM/debug panel that activates one spell without altering formal loadouts. Make every spell independently replayable.
-9. **Validate.** Run syntax, asset, renderer, configuration, export, and combat-mechanics tests. Capture representative frames and apply `references/qa-and-acceptance.md`.
+For a complete request, assess the project and present the selectable seven stages before beginning work. Mark each stage as already satisfied, recommended, or blocked by a missing dependency; give its one-line output and recommend a selection with a reason.
+
+For an explicit partial request, enter the matching stage directly. Add only the minimum required dependencies when an input is missing, explain why they are required, and accept an existing design or resource after checking it instead of repeating completed work.
+
+## Selectable stages
+
+1. **Requirements analysis.** Record skill semantics, target scope, project constraints, existing assets, renderer, configuration, tests, and debug entry points.
+2. **Visual design.** Define art direction, a four-stage storyboard, and acceptance criteria. Visual design must pause for approval by default.
+3. **Asset production.** Produce transparent sprite sequences and layered resources from the approved design, plus the effect manifest.
+4. **Resource preview.** Load the resources through the local previewer, report issues, and record adjustment decisions. Resource preview must pause for approval by default.
+5. **Game integration.** Connect approved assets to motion models, anchors, lifecycle events, and authoritative tuning without changing combat mechanics.
+6. **Test tooling.** Add independent GM/debug playback and verify configuration export.
+7. **Acceptance optimization.** Run visual acceptance and combat regression checks, fix issues, and deliver the final report.
+
+Offer these choice forms: `execute all`, `first N stages`, `specific stages`, and `continue from stage N`. `execute all` still pauses after visual design and resource preview. Skip both approval checkpoints only when the user explicitly requests uninterrupted execution.
+
+Stage 3 requires an approved stage 2 design; stage 4 requires readable resources; stage 5 requires resources that passed preview or were explicitly accepted. Reuse checked prior outputs when continuing from a later stage.
+
+## Stage completion response
+
+After each stage, report the delivered outputs, issues and adjustments, currently available next stages, and direct choices such as revise, approve and continue, or stop. Keep the response centered on decisions rather than internal commands or manifest mechanics.
 
 ## Required separation
 
@@ -38,6 +50,7 @@ Never change combat mechanics to compensate for a visual positioning error.
 
 - Read `references/visual-design.md` before concept or storyboard work.
 - Read `references/asset-production.md` before generating, slicing, or exporting sprite assets.
+- Read `references/preview-workflow.md` completely before any resource preview work.
 - Read `references/runtime-integration.md` before changing effect playback code.
 - Read `references/config-and-export.md` when spreadsheets, generated tables, or export tools are in scope.
 - Read `references/qa-and-acceptance.md` before claiming completion.

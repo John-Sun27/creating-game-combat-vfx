@@ -1,4 +1,4 @@
 interface:
   display_name: "战斗特效制作"
-  short_description: "覆盖视觉设计、资源制作、运行时接入、导表和验收的完整战斗特效流程"
-  default_prompt: "Use $creating-game-combat-vfx to design, produce, integrate, and validate a complete combat spell VFX set."
+  short_description: "按需规划视觉设计、资源制作、预览、接入与验收"
+  default_prompt: "Use $creating-game-combat-vfx to assess my request, propose the relevant stages, and help me complete the combat VFX work I choose."
