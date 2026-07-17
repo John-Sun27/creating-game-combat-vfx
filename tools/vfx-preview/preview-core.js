@@ -69,6 +69,13 @@
   }
 
   function spriteFrameStyle(frameCount, frameIndex) {
+    if (!Number.isInteger(frameCount) || frameCount < 1) {
+      throw new RangeError('frameCount must be a positive integer');
+    }
+    if (!Number.isInteger(frameIndex) || frameIndex < 0 || frameIndex >= frameCount) {
+      throw new RangeError(`frameIndex must be an integer from 0 to ${frameCount - 1}`);
+    }
+
     const position = frameCount === 1 ? 0 : frameIndex / (frameCount - 1) * 100;
     return {
       backgroundSize: `${frameCount * 100}% 100%`,
@@ -91,10 +98,19 @@
     }
 
     const view = new DataView(bytes.buffer, bytes.byteOffset, bytes.byteLength);
+    if (view.getUint32(8) !== 13) {
+      throw new Error('Invalid PNG: IHDR chunk length must be 13');
+    }
+
+    const width = view.getUint32(16);
+    const height = view.getUint32(20);
+    if (width === 0) throw new Error('Invalid PNG: width must be positive');
+    if (height === 0) throw new Error('Invalid PNG: height must be positive');
+
     const colorType = bytes[25];
     return {
-      width: view.getUint32(16),
-      height: view.getUint32(20),
+      width,
+      height,
       hasAlpha: colorType === 4 || colorType === 6,
     };
   }
