@@ -1,0 +1,65 @@
+{
+  "schemaVersion": 1,
+  "effects": [
+    {
+      "key": "preview_returning_edge",
+      "element": "sword",
+      "visualArchetype": "projectile",
+      "layers": {
+        "telegraph": { "file": "01_shaquan_returning_edge.png", "frames": 4 },
+        "body": { "file": "01_shaquan_returning_edge.png", "frames": 8 },
+        "impact": { "file": "01_shaquan_returning_edge.png", "frames": 4 },
+        "residue": { "file": "01_shaquan_returning_edge.png", "frames": 4 }
+      },
+      "scale": 0.8,
+      "offsetX": 0,
+      "offsetY": 0,
+      "acceptance": ["projectile travels horizontally"]
+    },
+    {
+      "key": "preview_frozen_domain",
+      "element": "ice",
+      "visualArchetype": "persistent-zone",
+      "layers": {
+        "telegraph": { "file": "04_bingheqi_frozen_domain.png", "frames": 4 },
+        "body": { "file": "04_bingheqi_frozen_domain.png", "frames": 8 },
+        "impact": { "file": "04_bingheqi_frozen_domain.png", "frames": 4 },
+        "residue": { "file": "04_bingheqi_frozen_domain.png", "frames": 4 }
+      },
+      "scale": 0.75,
+      "offsetX": 0,
+      "offsetY": 55,
+      "acceptance": ["zone loops until loop playback is disabled"]
+    },
+    {
+      "key": "preview_celestial_furnace",
+      "element": "fire",
+      "visualArchetype": "falling",
+      "layers": {
+        "telegraph": { "file": "06_yunshi_celestial_furnace_core.png", "frames": 4 },
+        "body": { "file": "06_yunshi_celestial_furnace_core.png", "frames": 8 },
+        "impact": { "file": "06_yunshi_celestial_furnace_core.png", "frames": 4 },
+        "residue": { "file": "06_yunshi_celestial_furnace_core.png", "frames": 4 }
+      },
+      "scale": 0.78,
+      "offsetX": 0,
+      "offsetY": 20,
+      "acceptance": ["body falls from above toward the ground anchor"]
+    },
+    {
+      "key": "preview_missing_body",
+      "element": "test",
+      "visualArchetype": "projectile",
+      "layers": {
+        "telegraph": { "file": "01_shaquan_returning_edge.png", "frames": 4 },
+        "body": { "file": "missing_body.png", "frames": 8 },
+        "impact": { "file": "01_shaquan_returning_edge.png", "frames": 4 },
+        "residue": { "file": "01_shaquan_returning_edge.png", "frames": 4 }
+      },
+      "scale": 1,
+      "offsetX": 0,
+      "offsetY": 0,
+      "acceptance": ["missing body blocks only this effect"]
+    }
+  ]
+}

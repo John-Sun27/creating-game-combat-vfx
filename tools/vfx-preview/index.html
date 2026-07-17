@@ -1,0 +1,95 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>战斗特效本地预览器</title>
+  <link rel="stylesheet" href="preview.css">
+</head>
+<body>
+  <header class="app-header">
+    <div>
+      <p class="eyebrow">COMBAT VFX · LOCAL PREVIEW</p>
+      <h1>战斗特效预览器</h1>
+      <p>直接选择项目目录，在本机检查序列帧、运动和资源问题。</p>
+    </div>
+    <label class="folder-picker" for="folderInput">
+      <span>选择项目目录</span><small>Choose folder</small>
+      <input id="folderInput" type="file" webkitdirectory multiple>
+    </label>
+  </header>
+
+  <main class="workspace">
+    <aside class="panel effects-panel" aria-labelledby="effectsTitle">
+      <div class="panel-heading">
+        <div><h2 id="effectsTitle">特效列表</h2><small>Effects</small></div>
+        <span id="effectCount" class="badge">0</span>
+      </div>
+      <p id="emptyHint" class="empty-hint">选择包含清单与 PNG 的目录开始预览。</p>
+      <nav id="effectList" class="effect-list" aria-label="特效列表"></nav>
+    </aside>
+
+    <section class="preview-column" aria-labelledby="previewTitle">
+      <div class="preview-heading">
+        <div><h2 id="previewTitle">舞台预览</h2><small>Stage preview</small></div>
+        <div class="status-line"><span id="stageName">等待载入</span><span id="frameName">—</span></div>
+      </div>
+      <div id="previewStage" class="preview-stage background-dark" aria-live="polite">
+        <div class="stage-grid" aria-hidden="true"></div>
+        <div class="stage-anchor" aria-hidden="true"></div>
+        <p id="stageHint">载入目录后，选择一个有效特效。</p>
+      </div>
+
+      <section class="panel issue-panel" aria-labelledby="issuesTitle">
+        <div class="panel-heading">
+          <div><h2 id="issuesTitle">资源检查</h2><small>Validation</small></div>
+          <span id="issueSummary" class="badge neutral">未检查</span>
+        </div>
+        <ul id="issueList" class="issue-list"><li class="muted">尚未载入资源。</li></ul>
+      </section>
+    </section>
+
+    <aside class="panel controls-panel" aria-labelledby="controlsTitle">
+      <div class="panel-heading"><div><h2 id="controlsTitle">播放控制</h2><small>Playback</small></div></div>
+      <div class="button-grid">
+        <button id="playButton" type="button">播放 <small>Play</small></button>
+        <button id="pauseButton" type="button">暂停 <small>Pause</small></button>
+        <button id="restartButton" type="button">重播 <small>Restart</small></button>
+        <button id="stepButton" type="button">逐帧 <small>Step</small></button>
+      </div>
+
+      <div class="control-group">
+        <label for="fpsInput"><span>帧率 <small>FPS</small></span><output id="fpsValue">24</output></label>
+        <input id="fpsInput" type="range" min="1" max="60" value="24">
+      </div>
+      <div class="control-group">
+        <label for="scaleInput"><span>预览大小 <small>Scale</small></span><output id="scaleValue">1.00×</output></label>
+        <input id="scaleInput" type="range" min="0.25" max="2" step="0.05" value="1">
+      </div>
+      <div class="control-group paired">
+        <label for="offsetXInput"><span>水平偏移 <small>Offset X</small></span><output id="offsetXValue">0</output></label>
+        <input id="offsetXInput" type="range" min="-200" max="200" value="0">
+        <label for="offsetYInput"><span>垂直偏移 <small>Offset Y</small></span><output id="offsetYValue">0</output></label>
+        <input id="offsetYInput" type="range" min="-200" max="200" value="0">
+      </div>
+      <div class="control-group">
+        <label for="backgroundSelect"><span>舞台背景 <small>Background</small></span></label>
+        <select id="backgroundSelect">
+          <option value="dark">深色 · Dark</option>
+          <option value="light">浅色 · Light</option>
+          <option value="checkerboard">棋盘格 · Checkerboard</option>
+          <option value="transparent">透明 · Transparent</option>
+        </select>
+      </div>
+      <label class="toggle-row" for="loopInput">
+        <span>循环播放 <small>Loop playback</small></span>
+        <input id="loopInput" type="checkbox" checked>
+      </label>
+    </aside>
+  </main>
+
+  <footer>所有文件只在当前浏览器标签页内读取，不会上传。</footer>
+  <script src="preview-core.js"></script>
+  <script src="preview.js"></script>
+</body>
+</html>
