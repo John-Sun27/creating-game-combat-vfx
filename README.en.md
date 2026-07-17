@@ -116,7 +116,7 @@ The Skill enters stage 4, resource preview, directly. If readable resources or a
 
 ### Start the local previewer
 
-Open `tools/vfx-preview/index.html` directly in a browser, then select the resource directory containing the effect manifest and PNG files. No dependency installation, server, or network connection is required. Missing resources and similar errors are isolated so other valid effects in the same directory remain playable.
+Open `tools/vfx-preview/index.html` directly in a browser, then select the resource directory containing the effect manifest and PNG files. The project's build or export pipeline should automatically emit `effect-manifest.preview.json` beside the runtime assets, so no one has to copy or maintain a second configuration manually. No dependency installation, server, or network connection is required. Missing resources and similar errors are isolated so other valid effects in the same directory remain playable.
 
 Read the reference file named by `SKILL.md` before performing each production stage. Do not declare completion until automated mechanics tests and final gameplay-scale visual captures both pass.
 

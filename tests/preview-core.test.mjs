@@ -131,6 +131,13 @@ test('effect inspection accepts a complete valid effect', () => {
   assert.deepEqual(inspectEffect(effect), []);
 });
 
+test('effect inspection accepts static telegraph and residue support layers', () => {
+  const staticSupport = structuredClone(effect);
+  staticSupport.layers.telegraph.frames = 1;
+  staticSupport.layers.residue.frames = 1;
+  assert.deepEqual(inspectEffect(staticSupport), []);
+});
+
 test('effect inspection rejects non-finite and non-positive optional layer durations', () => {
   for (const durationMs of [0, -1, Number.NaN, Number.POSITIVE_INFINITY, '500']) {
     const invalid = structuredClone(effect);
@@ -281,15 +288,11 @@ test('effect inspection requires every semantic layer', () => {
   assert.match(errors, /residue layer is required/i);
 });
 
-test('effect inspection enforces semantic layer minimum frames', () => {
+test('effect inspection enforces the impact semantic layer minimum frames', () => {
   const invalid = structuredClone(effect);
-  invalid.layers.telegraph.frames = 3;
   invalid.layers.impact.frames = 3;
-  invalid.layers.residue.frames = 3;
   const errors = inspectEffect(invalid).join('\n');
-  assert.match(errors, /telegraph requires at least 4 frames/i);
   assert.match(errors, /impact requires at least 4 frames/i);
-  assert.match(errors, /residue requires at least 4 frames/i);
 });
 
 test('effect inspection enforces each archetype body minimum', () => {

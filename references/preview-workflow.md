@@ -6,7 +6,9 @@ Use this workflow after resources exist and before game integration. The preview
 
 Open `tools/vfx-preview/index.html` directly and select the output directory containing PNG resources and an effect manifest. Prefer `effect-manifest.preview.json`, then `effect-manifest.json`, then another compatible JSON file. Resource paths resolve relative to the selected directory.
 
-Reuse the structure from `assets/effect-manifest.example.json`; do not create a second business configuration. Preserve each effect's `visualArchetype`, frames, scale, and offsets so preview and runtime consume the same intent.
+Make the project's build or export pipeline emit `effect-manifest.preview.json` beside the runtime PNG resources. Generate it from the same authoritative effect definitions used by the runtime; never require the user to copy or maintain a second configuration manually.
+
+Reuse the structure from `assets/effect-manifest.example.json`. Preserve each effect's `visualArchetype`, frames, scale, and offsets so preview and runtime consume the same intent. Single-frame telegraph and residue support layers are valid; body animation must satisfy its archetype minimum and impact must contain at least four frames.
 
 ## Rendering and motion
 

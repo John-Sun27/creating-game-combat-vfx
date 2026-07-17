@@ -151,7 +151,7 @@
         errors.push(`${layerName}.durationMs must be a finite positive number`);
       }
 
-      const minimumFrames = layerName === 'body' ? rule?.bodyFrames : 4;
+      const minimumFrames = layerName === 'body' ? rule?.bodyFrames : (layerName === 'impact' ? 4 : 1);
       if (minimumFrames && layer.frames < minimumFrames) {
         errors.push(`${layerName} requires at least ${minimumFrames} frames`);
       }
