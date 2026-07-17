@@ -8,19 +8,19 @@ A reusable Codex Skill for taking game combat effects from visual direction to p
 
 These storyboards demonstrate how the Skill maps gameplay semantics to motion and residue phases. They define visual direction and keyframe relationships; they are not single static textures to be stretched during playback.
 
-### Shaquan · Returning Edge: close-range arc
+### Returning Edge: close-range arc
 
 The wind-up, formed slash, impact accent, and ink-like residue preserve a consistent silhouette and brightness hierarchy across the sequence.
 
 ![Four-stage visual reference for Shaquan Returning Edge](docs/reference-images/01_shaquan_returning_edge.png)
 
-### Bingheqi · Frozen Domain: persistent ground zone
+### Frozen Domain: persistent ground zone
 
 The effect establishes its boundary, freezes the ground, grows ice formations, and settles into an animated persistent state.
 
 ![Four-stage visual reference for Bingheqi Frozen Domain](docs/reference-images/04_bingheqi_frozen_domain.png)
 
-### Celestial Furnace Core: falling meteor impact
+### Furnace Core: falling meteor impact
 
 The warning seal, airborne meteor, ground impact, and scorched residue each communicate anticipation, travel, hit, and cleanup.
 
