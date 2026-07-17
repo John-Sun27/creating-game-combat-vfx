@@ -19,58 +19,17 @@
 
 ---
 
-### Task 1: Add executable tests for stage routing and manifest rules
+### Task 1: Add failing tests for preview manifest rules
 
 **Files:**
-- Create: `tests/skill-workflow.test.mjs`
 - Create: `tests/preview-core.test.mjs`
-- Test: `SKILL.md`
 - Test: `tools/vfx-preview/preview-core.js`
 
 **Interfaces:**
-- Consumes: Skill Markdown and the exported preview-core functions specified in Task 2.
-- Produces: deterministic regression coverage for routing language, selection semantics, manifest validation, PNG metadata, and lifecycle generation.
+- Consumes: the preview-core functions specified in Task 2.
+- Produces: deterministic regression coverage for manifest validation, PNG metadata, frame styles, and lifecycle generation.
 
-- [ ] **Step 1: Create the failing Skill workflow test**
-
-Create `tests/skill-workflow.test.mjs`:
-
-```js
-import test from 'node:test';
-import assert from 'node:assert/strict';
-import fs from 'node:fs';
-
-const skill = fs.readFileSync(new URL('../SKILL.md', import.meta.url), 'utf8');
-
-test('full requests present a selectable seven-stage workflow', () => {
-  for (const phrase of ['seven stages', 'execute all', 'first N stages', 'specific stages', 'continue from stage']) {
-    assert.match(skill.toLowerCase(), new RegExp(phrase.toLowerCase()));
-  }
-});
-
-test('partial requests enter the matching stage directly', () => {
-  assert.match(skill, /explicit partial request/i);
-  assert.match(skill, /minimum required dependencies/i);
-});
-
-test('visual design and preview are approval checkpoints', () => {
-  assert.match(skill, /visual design.*pause/i);
-  assert.match(skill, /resource preview.*pause/i);
-  assert.match(skill, /uninterrupted execution/i);
-});
-```
-
-- [ ] **Step 2: Run the routing test and verify RED**
-
-Run:
-
-```powershell
-& 'C:\Users\soult\.cache\codex-runtimes\codex-primary-runtime\dependencies\node\bin\node.exe' --test '.\tests\skill-workflow.test.mjs'
-```
-
-Expected: FAIL because the current Skill has no selectable seven-stage routing contract.
-
-- [ ] **Step 3: Create the failing preview-core test**
+- [ ] **Step 1: Create the failing preview-core test**
 
 Create `tests/preview-core.test.mjs` loading these exact exports from `tools/vfx-preview/preview-core.js`:
 
@@ -141,7 +100,7 @@ test('PNG parser reads dimensions and alpha from IHDR', () => {
 });
 ```
 
-- [ ] **Step 4: Run the preview-core test and verify RED**
+- [ ] **Step 2: Run the preview-core test and verify RED**
 
 Run:
 
@@ -337,15 +296,54 @@ git commit -m "Add local combat VFX previewer"
 - Consumes the seven-stage contract and previewer from Tasks 2–3.
 - Produces consistent routing, dependency checks, pause rules, and completion responses for future Skill users.
 
-- [ ] **Step 1: Add the routing contract to SKILL.md**
+- [ ] **Step 1: Create the failing Skill workflow test**
+
+Create `tests/skill-workflow.test.mjs`:
+
+```js
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import fs from 'node:fs';
+
+const skill = fs.readFileSync(new URL('../SKILL.md', import.meta.url), 'utf8');
+
+test('full requests present a selectable seven-stage workflow', () => {
+  for (const phrase of ['seven stages', 'execute all', 'first N stages', 'specific stages', 'continue from stage']) {
+    assert.match(skill.toLowerCase(), new RegExp(phrase.toLowerCase()));
+  }
+});
+
+test('partial requests enter the matching stage directly', () => {
+  assert.match(skill, /explicit partial request/i);
+  assert.match(skill, /minimum required dependencies/i);
+});
+
+test('visual design and preview are approval checkpoints', () => {
+  assert.match(skill, /visual design.*pause/i);
+  assert.match(skill, /resource preview.*pause/i);
+  assert.match(skill, /uninterrupted execution/i);
+});
+```
+
+- [ ] **Step 2: Run the routing test and verify RED**
+
+Run:
+
+```powershell
+& 'C:\Users\soult\.cache\codex-runtimes\codex-primary-runtime\dependencies\node\bin\node.exe' --test '.\tests\skill-workflow.test.mjs'
+```
+
+Expected: FAIL because the current Skill has no selectable seven-stage routing contract.
+
+- [ ] **Step 3: Add the routing contract to SKILL.md**
 
 Add concise sections named `Request routing`, `Selectable stages`, and `Stage completion response`. Use the exact seven stages from the design. State the choice forms `execute all`, `first N stages`, `specific stages`, and `continue from stage`. Require the visual-design and resource-preview pauses, with an explicit uninterrupted-execution override.
 
-- [ ] **Step 2: Add focused preview instructions**
+- [ ] **Step 4: Add focused preview instructions**
 
 Create `references/preview-workflow.md` covering directory layout, manifest reuse, DOM/CSS rendering, archetype-to-motion mapping, controls, resource checks, isolated errors, and the three post-preview choices. Link it directly from the resource-routing section of `SKILL.md` and require it before preview work.
 
-- [ ] **Step 3: Update agent metadata**
+- [ ] **Step 5: Update agent metadata**
 
 Change `agents/openai.yaml` to:
 
@@ -356,7 +354,7 @@ interface:
   default_prompt: "Use $creating-game-combat-vfx to assess my request, propose the relevant stages, and help me complete the combat VFX work I choose."
 ```
 
-- [ ] **Step 4: Run the routing test and Skill validator**
+- [ ] **Step 6: Run the routing test and Skill validator**
 
 ```powershell
 $node='C:\Users\soult\.cache\codex-runtimes\codex-primary-runtime\dependencies\node\bin\node.exe'
@@ -368,7 +366,7 @@ $env:PYTHONPATH=(Resolve-Path '..\.codex_tmp\skill_pydeps').Path
 
 Expected: all routing tests pass and validation prints `Skill is valid!`.
 
-- [ ] **Step 5: Commit Task 4**
+- [ ] **Step 7: Commit Task 4**
 
 ```powershell
 git add SKILL.md references/preview-workflow.md agents/openai.yaml tests/skill-workflow.test.mjs
