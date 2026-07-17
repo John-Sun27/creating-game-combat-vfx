@@ -10,7 +10,9 @@ const {
   buildStageInstances,
   inspectEffect,
   instanceProgress,
+  motionPose,
   parsePngHeader,
+  resolvePreviewProfile,
   resetTimeline,
   sampleSpriteFrame,
   spriteFrameStyle,
@@ -98,6 +100,61 @@ test('close-range slash stays anchored because its arc is already painted into t
   const body = buildLifecycle(closeRange)[1];
   assert.equal(body.motion, 'static');
   assert.equal(buildStageInstances(closeRange, body)[0].motion, 'static');
+});
+
+test('preview profile precedence is defaults then archetype then manifest then user override', () => {
+  const configured = {
+    ...effect,
+    visualArchetype: 'projectile',
+    preview: { directionDeg: 90, distance: 300, durationMs: 680 },
+  };
+  const resolved = resolvePreviewProfile(configured, { directionDeg: 180 });
+  assert.equal(resolved.displayMode, 'projectile');
+  assert.equal(resolved.motion, 'travel');
+  assert.equal(resolved.directionDeg, 180);
+  assert.equal(resolved.distance, 300);
+  assert.equal(resolved.durationMs, 680);
+});
+
+test('legacy effects resolve through archetype fallback', () => {
+  assert.equal(resolvePreviewProfile({ ...effect, visualArchetype: 'falling' }).displayMode, 'falling');
+  assert.equal(resolvePreviewProfile({ ...effect, visualArchetype: 'close-range-slash' }).motion, 'static');
+});
+
+test('travel follows arbitrary direction without resizing the sprite', () => {
+  const profile = { motion: 'travel', directionDeg: 90, distance: 340 };
+  const start = motionPose(profile, 0);
+  const end = motionPose(profile, 1);
+  assert.deepEqual([Math.round(start.x), Math.round(start.y)], [0, -170]);
+  assert.deepEqual([Math.round(end.x), Math.round(end.y)], [0, 170]);
+  assert.deepEqual([start.scaleX, start.scaleY, end.scaleX, end.scaleY], [1, 1, 1, 1]);
+});
+
+test('travel supports horizontal and reverse directions', () => {
+  assert.deepEqual(
+    [motionPose({ motion: 'travel', directionDeg: 0, distance: 200 }, 0).x,
+      motionPose({ motion: 'travel', directionDeg: 0, distance: 200 }, 1).x],
+    [-100, 100],
+  );
+  assert.deepEqual(
+    [Math.round(motionPose({ motion: 'travel', directionDeg: -90, distance: 200 }, 0).y),
+      Math.round(motionPose({ motion: 'travel', directionDeg: -90, distance: 200 }, 1).y)],
+    [100, -100],
+  );
+});
+
+test('out-and-back reaches target then returns', () => {
+  const profile = { motion: 'out-and-back', directionDeg: 90, distance: 340 };
+  assert.equal(Math.round(motionPose(profile, 0).y), -170);
+  assert.equal(Math.round(motionPose(profile, .5).y), 170);
+  assert.equal(Math.round(motionPose(profile, 1).y), -170);
+});
+
+test('moving front changes position without resizing the sprite', () => {
+  const start = motionPose({ motion: 'front', directionDeg: 90, distance: 300 }, 0);
+  const end = motionPose({ motion: 'front', directionDeg: 90, distance: 300 }, 1);
+  assert.deepEqual([start.scaleX, start.scaleY, end.scaleX, end.scaleY], [1, 1, 1, 1]);
+  assert.deepEqual([Math.round(start.y), Math.round(end.y)], [-150, 150]);
 });
 
 test('only persistent body archetypes loop by default', () => {

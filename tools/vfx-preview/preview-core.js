@@ -15,6 +15,30 @@
     'shield-orbit': { bodyFrames: 8, motion: 'orbit' },
   });
 
+  const ARCHETYPE_PROFILES = Object.freeze({
+    'close-range-slash': { displayMode: 'in-place', motion: 'static' },
+    projectile: { displayMode: 'projectile', motion: 'travel' },
+    'projectile-volley': { displayMode: 'projectile', motion: 'volley' },
+    'moving-front': { displayMode: 'moving-front', motion: 'front' },
+    falling: { displayMode: 'falling', motion: 'fall' },
+    'ground-eruption': { displayMode: 'persistent-ground', motion: 'erupt' },
+    'persistent-zone': { displayMode: 'persistent-ground', motion: 'zone' },
+    trap: { displayMode: 'persistent-ground', motion: 'zone' },
+    'target-brand': { displayMode: 'persistent-ground', motion: 'static' },
+    'target-beam': { displayMode: 'persistent-ground', motion: 'static' },
+    'shield-orbit': { displayMode: 'orbit', motion: 'orbit' },
+  });
+
+  const DEFAULT_PREVIEW_PROFILE = Object.freeze({
+    displayMode: 'in-place',
+    motion: 'static',
+    directionDeg: 0,
+    distance: 340,
+    durationMs: 900,
+    originAnchor: 'caster',
+    targetAnchor: 'ground',
+  });
+
   const STAGE_DURATIONS = Object.freeze({
     telegraph: 500,
     body: 900,
@@ -39,6 +63,68 @@
       loop: name === 'body' && LOOPING_ARCHETYPES.has(effect?.visualArchetype),
       motion: name === 'body' ? (rule?.motion ?? 'static') : name,
     }));
+  }
+
+  function resolvePreviewProfile(effect, overrides = {}) {
+    return {
+      ...DEFAULT_PREVIEW_PROFILE,
+      ...(ARCHETYPE_PROFILES[effect?.visualArchetype] || {}),
+      ...(effect?.preview || {}),
+      ...(overrides || {}),
+    };
+  }
+
+  function motionPose(profile, progress, instanceIndex = 0) {
+    const normalized = Math.max(0, Math.min(1, Number(progress) || 0));
+    const eased = normalized * normalized * (3 - 2 * normalized);
+    const distance = Math.max(0, Number(profile?.distance) || 0);
+    const directionDeg = Number.isFinite(Number(profile?.directionDeg))
+      ? Number(profile.directionDeg)
+      : 0;
+    const radians = directionDeg * Math.PI / 180;
+    const halfX = Math.cos(radians) * distance / 2;
+    const halfY = Math.sin(radians) * distance / 2;
+    const base = { x: 0, y: 0, rotationDeg: 0, scaleX: 1, scaleY: 1 };
+    const clean = (value) => Math.abs(value) < 1e-9 ? 0 : value;
+    const travelPose = (amount) => ({
+      ...base,
+      x: clean(-halfX + halfX * 2 * amount),
+      y: clean(-halfY + halfY * 2 * amount),
+      rotationDeg: directionDeg - 90,
+    });
+
+    switch (profile?.motion) {
+      case 'travel':
+      case 'front':
+        return travelPose(eased);
+      case 'out-and-back': {
+        const leg = normalized <= .5 ? normalized * 2 : (1 - normalized) * 2;
+        const legEased = leg * leg * (3 - 2 * leg);
+        return travelPose(legEased);
+      }
+      case 'volley': {
+        const pose = travelPose(eased);
+        const spread = (instanceIndex - 2) * 24;
+        return {
+          ...pose,
+          x: pose.x + Math.cos(radians + Math.PI / 2) * spread,
+          y: pose.y + Math.sin(radians + Math.PI / 2) * spread,
+        };
+      }
+      case 'fall':
+        return { ...base, y: -distance * (1 - eased), rotationDeg: directionDeg - 90 };
+      case 'erupt':
+        return { ...base, y: distance * .18 * (1 - eased), scaleY: .5 + .5 * eased };
+      case 'zone':
+        return { ...base, rotationDeg: normalized * 12, scaleX: .9 + .08 * Math.sin(normalized * Math.PI * 2), scaleY: .9 + .08 * Math.sin(normalized * Math.PI * 2) };
+      case 'orbit': {
+        const angle = normalized * Math.PI * 2 + instanceIndex * Math.PI * 2 / 3;
+        const radius = distance ? Math.min(distance / 2, 72) : 36;
+        return { ...base, x: Math.cos(angle) * radius, y: Math.sin(angle) * radius };
+      }
+      default:
+        return base;
+    }
   }
 
   function buildStageInstances(effect, stage) {
@@ -214,8 +300,10 @@
     buildStageInstances,
     inspectEffect,
     instanceProgress,
+    motionPose,
     parsePngHeader,
     resetTimeline,
+    resolvePreviewProfile,
     sampleSpriteFrame,
     spriteFrameStyle,
     stepTimeline,
