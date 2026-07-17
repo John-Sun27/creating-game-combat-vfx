@@ -2,7 +2,7 @@
 
 [简体中文](README.md) | [English](README.en.md)
 
-这是一个可复用的 chatgpt Skill，用于将游戏战斗特效从视觉定位推进到可接入、可配置、可测试和可验收的最终状态。流程已经在剑、火、水三类咒法中完成验证，覆盖视觉设计、序列帧资源制作、语义化播放、配置导出、隐藏 GM 测试、回归测试和真机视觉验收。
+这是一个可复用的 chatgpt Skill，用于将游戏战斗特效从视觉定位推进到可接入、可配置、可测试和可验收的最终状态。流程已经在剑、火、水三类技能中完成验证，覆盖视觉设计、序列帧资源制作、语义化播放、配置导出、隐藏 GM 测试、回归测试和真机视觉验收。
 
 ## 视觉参考图
 
@@ -73,7 +73,7 @@ scripts/validate_effect_manifest.mjs  确定性特效清单校验工具
 将本目录安装或链接到 Codex 的 Skills 目录，然后调用：
 
 ```text
-使用 $creating-game-combat-vfx 为这组咒法设计、制作并接入完整战斗特效。
+使用 $creating-game-combat-vfx 为这组技能设计、制作并接入完整战斗特效。
 ```
 
 制作新特效组时，复制 `assets/effect-manifest.example.json`，填写特效定义并执行校验：
