@@ -1,5 +1,38 @@
 # Asset production
 
+## Reference-driven production
+
+Use this path whenever an approved concept sheet, style frame, screenshot, or prior visual target exists.
+
+### 1. Lock the reference contract
+
+- Assign one **authoritative visual reference** to each effect and identify its dominant material, silhouette, palette hierarchy, edge treatment, brightest allowed area, and gameplay-scale detail density.
+- Treat a previous effect only as a quality bar. Never use one shared material master to manufacture visually different spells by recoloring, warping, or adding generic glow.
+
+### 2. Author raster source plates
+
+- Create one full-resolution **material master** per effect with the complete peak silhouette and generous clean padding.
+- Create **stage-specific key plates** for anticipation, body variation, impact, and residue from that effect's reference plus its accepted master.
+- Keep source plates as authored raster content. Deterministic interpolation may blend accepted plates, reveal alpha, dissolve pixels, resize whole content, stabilize pivots, and assemble strips. It must not procedurally draw the effect body, invent a generic substitute, or stretch one frame to represent motion.
+- Preserve chroma originals and normalized RGBA plates so regeneration remains auditable.
+
+### 3. Audit before expansion
+
+Measure each plate and derived frame, using project-specific thresholds when available:
+
+- alpha and non-empty visible bounds;
+- safe margin along both axes;
+- palette contamination outside the approved color family;
+- near-white or white coverage, with a stricter body limit than impact;
+- minimum dominant-material and colored-midtone coverage;
+- distinct frame bytes and stable visible pivot.
+
+Reject the source rather than hiding a failure with reduced opacity, bloom, runtime scale, atlas padding, or extra cropping.
+
+### 4. Compare on the project stage
+
+Create a **comparison contact sheet** with columns for the approved design, previous runtime asset when available, and the new asset. Use the same actual project background and normalize by visible alpha bounds so transparent canvas size cannot make one version appear artificially smaller. Compare material, color hierarchy, silhouette, edge cleanliness, detail density, and exposure before preview approval.
+
 ## Sprite sheet contract
 
 - Export transparent PNG sprite sheets with consistent cell dimensions.

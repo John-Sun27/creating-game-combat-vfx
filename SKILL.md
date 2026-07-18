@@ -56,6 +56,18 @@ Never change combat mechanics to compensate for a visual positioning error.
 - Read `references/qa-and-acceptance.md` before claiming completion.
 - When structured tracking is useful, create an effect manifest automatically from `assets/effect-manifest.example.json`, fill it from the approved design, and run `node scripts/validate_effect_manifest.mjs <manifest>`. Fix recoverable validation errors before continuing. Do not ask the user to copy, fill, or validate the manifest.
 
+## Reference-driven production gate
+
+When an approved design, style frame, or target screenshot exists, treat it as the **authoritative visual reference** for stage 3. For every distinct effect:
+
+1. Author an independent full-resolution **material master** from that effect's reference. Do not reshape or recolor another effect's generic master.
+2. Author **stage-specific key plates** for anticipation, body variation, impact, and residue using the same reference and accepted material master.
+3. Expand animation only from accepted raster plates. Deterministic interpolation may blend, reveal, dissolve, resize, normalize, or assemble those plates; it must not procedurally draw the effect body.
+4. Audit alpha, safe margins, palette contamination, white coverage, frame distinctness, and dominant material coverage before export.
+5. Produce a **comparison contact sheet** showing design, previous asset when available, and new asset over the same real project background at normalized visible size.
+
+If the reference, master, or comparison fails, keep that effect in stage 3. Do not lower opacity, add bloom, crop the source, or adjust runtime scale to conceal a material or boundary mismatch.
+
 ## Completion gate
 
 Do not call the effect complete until:
@@ -68,6 +80,7 @@ Do not call the effect complete until:
 - persistent zones animate for their full duration;
 - every source-grid cell has clear safe margin and passes the source-grid boundary validator before slicing;
 - core color remains legible without additive white blowout;
+- reference-driven assets retain the approved material, palette hierarchy, silhouette, and detail density in the comparison contact sheet;
 - configuration export reports changed tables and runtime values match the source;
 - combat regression tests prove mechanics did not change;
 - every spell can be replayed independently through the test surface.

@@ -59,6 +59,21 @@ test('asset production blocks clipped source-grid cells before sprite slicing', 
   assert.equal(fs.existsSync(sourceGridValidator), true);
 });
 
+test('reference-driven remasters preserve approved material language', () => {
+  const guidance = `${skill}\n${assetProduction}`.toLowerCase();
+  for (const phrase of [
+    'authoritative visual reference',
+    'material master',
+    'stage-specific key plates',
+    'comparison contact sheet',
+  ]) {
+    assert.match(guidance, new RegExp(phrase));
+  }
+  assert.match(assetProduction, /white coverage/i);
+  assert.match(assetProduction, /palette contamination/i);
+  assert.match(assetProduction, /deterministic interpolation/i);
+});
+
 test('bilingual repository introduction includes the VFX previewer screenshot', () => {
   assert.equal(fs.existsSync(previewScreenshot), true);
   assert.match(readmeZh, /### 特效预览器/);
