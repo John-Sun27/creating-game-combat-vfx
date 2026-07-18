@@ -74,6 +74,15 @@ test('reference-driven remasters preserve approved material language', () => {
   assert.match(assetProduction, /deterministic interpolation/i);
 });
 
+test('semantic layers must pass a composite continuity gate', () => {
+  const guidance = `${skill}\n${assetProduction}\n${previewWorkflow}`;
+  assert.match(guidance, /composite continuity gate/i);
+  assert.match(guidance, /origin.*target.*moving/i);
+  assert.match(guidance, /crossfade/i);
+  assert.match(guidance, /impact.*must not repaint.*complete body/i);
+  assert.match(guidance, /overlap contact sheet/i);
+});
+
 test('bilingual repository introduction includes the VFX previewer screenshot', () => {
   assert.equal(fs.existsSync(previewScreenshot), true);
   assert.match(readmeZh, /### 特效预览器/);

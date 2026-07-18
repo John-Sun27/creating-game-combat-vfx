@@ -38,10 +38,15 @@ Record an occurrence timestamp with every impact. Compute `ageMs = now - bornAtM
 
 ## Anchors
 
+- Use only `origin`, `target`, and `moving` in preview layer configuration. Translate project-facing names such as caster or ground into that vocabulary at export time.
 - Resolve monster hit effects to the visible foot anchor.
 - Use `anchorY` near `0.8-1.0` for ground eruptions and falling weapons whose tip meets the ground.
 - Keep telegraphs locked even when the target actor animates vertically.
 - Treat scale and offset as presentation-only configuration.
+
+## Semantic-layer transitions
+
+Give adjacent semantic layers explicit time windows and crossfade fractions. When two plates describe one continuous action, align their pivot, display size, direction, and contact point before blending. Keep the body authoritative through travel; let impact add contact information instead of drawing a second complete body on top of it.
 
 ## Safe integration order
 

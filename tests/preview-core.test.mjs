@@ -175,6 +175,45 @@ test('configured choreography overlaps semantic layers', () => {
   assert.ok(Math.abs(bodyProgress - (0.6 - 0.15) / 0.55) < 1e-12);
 });
 
+test('configured choreography crossfades overlapping semantic layers', () => {
+  const configured = structuredClone(effect);
+  configured.preview = {
+    durationMs: 1000,
+    layers: {
+      body: { start: .16, end: .72, anchor: 'origin', fadeOut: .1785714286 },
+      impact: { start: .62, end: .84, anchor: 'origin', fadeIn: .4545454545 },
+    },
+  };
+  const instances = buildPreviewInstances(configured, 650);
+  const body = instances.find((entry) => entry.layerName === 'body');
+  const impact = instances.find((entry) => entry.layerName === 'impact');
+  assert.ok(body.opacity > 0 && body.opacity < 1);
+  assert.ok(impact.opacity > 0 && impact.opacity < 1);
+  assert.ok(body.opacity + impact.opacity <= 1.15);
+});
+
+test('effect inspection rejects preview layer anchors outside the runtime vocabulary', () => {
+  for (const anchor of ['caster', 'ground', 'center']) {
+    const invalid = structuredClone(effect);
+    invalid.preview = {
+      durationMs: 1000,
+      layers: { body: { start: .1, end: .8, anchor } },
+    };
+    assert.match(inspectEffect(invalid).join('\n'), /body\.anchor.*origin.*target.*moving/i);
+  }
+});
+
+test('effect inspection validates preview fade fractions', () => {
+  for (const fadeIn of [-.1, 1.1, Number.NaN]) {
+    const invalid = structuredClone(effect);
+    invalid.preview = {
+      durationMs: 1000,
+      layers: { body: { start: .1, end: .8, anchor: 'moving', fadeIn } },
+    };
+    assert.match(inspectEffect(invalid).join('\n'), /body\.fadeIn.*0.*1/i);
+  }
+});
+
 test('legacy effects report no configured choreography', () => {
   assert.deepEqual(buildPreviewInstances(effect, 0), []);
 });

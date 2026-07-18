@@ -81,6 +81,7 @@ Do not call the effect complete until:
 - every source-grid cell has clear safe margin and passes the source-grid boundary validator before slicing;
 - core color remains legible without additive white blowout;
 - reference-driven assets retain the approved material, palette hierarchy, silhouette, and detail density in the comparison contact sheet;
+- every overlapping semantic-layer transition passes the composite continuity gate: registered pivots, valid `origin`/`target`/`moving` anchors, and a crossfade without a second full-opacity silhouette;
 - configuration export reports changed tables and runtime values match the source;
 - combat regression tests prove mechanics did not change;
 - every spell can be replayed independently through the test surface.
@@ -96,3 +97,4 @@ Do not call the effect complete until:
 | Workbook changes do not appear | Confirm the authoritative sheet, exported table, runtime consumer, and `[UPDATED]` result. |
 | Effect looks pale | Keep the core near opaque; reserve transparency for smoke, edge glow, and residue. |
 | Frame is cut at both sides after slicing | Regenerate the source-grid cell with clean safety margins; never hide a clipped source with runtime scale or atlas padding. |
+| A second blade, cross flash, or ripple appears during a transition | Inspect the overlap composite, co-register both plates, crossfade their windows, and ensure impact adds hit information instead of repainting the complete body. |

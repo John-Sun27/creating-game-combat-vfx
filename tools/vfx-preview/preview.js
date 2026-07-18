@@ -347,7 +347,9 @@
       if (!instanceState.visible) return;
       node.style.backgroundSize = style.backgroundSize;
       node.style.backgroundPosition = style.backgroundPosition;
-      node.style.opacity = stage.name === 'residue' ? String(1 - instanceState.progress * .7) : '1';
+      node.style.opacity = stage.name === 'runtime'
+        ? String(instance.opacity ?? 1)
+        : (stage.name === 'residue' ? String(1 - instanceState.progress * .7) : '1');
       const instanceIndex = Number(instance.id.split('-').pop()) || 0;
       const pose = core.composePreviewPose(previewProfile, instance, instanceState.progress, instanceIndex);
       const scale = Number(effect.scale) * userScale;

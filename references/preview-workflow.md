@@ -32,7 +32,9 @@ Map archetypes to motion as follows:
 | `target-beam` | target-locked beam loop |
 | `shield-orbit` | orbit around the protected actor |
 
-When `preview.layers` exists, use its normalized start/end windows, anchors, and optional display sizes so telegraph, body, impact, and residue can overlap like the runtime. When it is absent, retain the compatible four-stage lifecycle. The display-mode, direction, custom-angle, and distance controls are temporary inspection tools; reset them when switching effects or when the user selects the project default.
+When `preview.layers` exists, use its normalized start/end windows, anchors, optional display sizes, and opacity curves so telegraph, body, impact, and residue can overlap like the runtime. The layer anchor vocabulary is exactly `origin`, `target`, and `moving`; reject aliases such as `caster` or `ground` instead of silently centering them. Express transition opacity with normalized `fadeIn` and `fadeOut` fractions. Adjacent overlapping windows must crossfade rather than remain at full opacity together. When configured choreography is absent, retain the compatible four-stage lifecycle. The display-mode, direction, custom-angle, and distance controls are temporary inspection tools; reset them when switching effects or when the user selects the project default.
+
+Run the **composite continuity gate** in runtime mode. For each overlap, capture an overlap contact sheet at its start, midpoint, and end on the project background. Confirm that active plates share the intended pivot and contact point, and that body-to-impact reads as one action without a duplicate inner blade, cross flash, detached ripple, or abrupt scale jump. Display the active layer names and effective opacity while diagnosing an overlap.
 
 ## Controls and resource checks
 

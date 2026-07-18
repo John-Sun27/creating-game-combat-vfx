@@ -175,6 +175,12 @@
         const instanceEnd = end + index * stagger;
         if (progress < instanceStart || progress > instanceEnd) return null;
         const localProgress = (progress - instanceStart) / Math.max(.000001, instanceEnd - instanceStart);
+        const fadeIn = Math.max(0, Math.min(1, Number(config.fadeIn) || 0));
+        const fadeOut = Math.max(0, Math.min(1, Number(config.fadeOut) || 0));
+        const fadeInOpacity = fadeIn > 0 ? Math.min(1, localProgress / fadeIn) : 1;
+        const fadeOutOpacity = fadeOut > 0
+          ? Math.min(1, (1 - localProgress) / fadeOut)
+          : 1;
         return {
           id: count > 1 ? `${layerName}-runtime-${index}` : `${layerName}-runtime`,
           layerName,
@@ -182,6 +188,7 @@
           anchor: config.anchor || (layerName === 'body' ? 'moving' : 'target'),
           width: Number(config.width) || undefined,
           height: Number(config.height) || undefined,
+          opacity: Math.max(0, Math.min(1, fadeInOpacity, fadeOutOpacity)),
           localProgress,
           elapsedMs: localProgress * (end - start) * durationMs,
           delayMs: 0,
@@ -298,6 +305,21 @@
       const minimumFrames = layerName === 'body' ? rule?.bodyFrames : (layerName === 'impact' ? 4 : 1);
       if (minimumFrames && layer.frames < minimumFrames) {
         errors.push(`${layerName} requires at least ${minimumFrames} frames`);
+      }
+
+      const previewLayer = effect?.preview?.layers?.[layerName];
+      if (previewLayer) {
+        if (!['origin', 'target', 'moving'].includes(previewLayer.anchor)) {
+          errors.push(`${layerName}.anchor must be origin, target, or moving`);
+        }
+        for (const fadeName of ['fadeIn', 'fadeOut']) {
+          if (fadeName in previewLayer
+            && (!Number.isFinite(previewLayer[fadeName])
+              || previewLayer[fadeName] < 0
+              || previewLayer[fadeName] > 1)) {
+            errors.push(`${layerName}.${fadeName} must be a finite number from 0 to 1`);
+          }
+        }
       }
     }
 

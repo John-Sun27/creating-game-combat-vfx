@@ -33,6 +33,16 @@ Reject the source rather than hiding a failure with reduced opacity, bloom, runt
 
 Create a **comparison contact sheet** with columns for the approved design, previous runtime asset when available, and the new asset. Use the same actual project background and normalize by visible alpha bounds so transparent canvas size cannot make one version appear artificially smaller. Compare material, color hierarchy, silhouette, edge cleanliness, detail density, and exposure before preview approval.
 
+### 5. Pass the composite continuity gate
+
+Create an **overlap contact sheet** for every adjacent pair that shares runtime time: telegraph/body, body/impact, and impact/residue. Sample the start, midpoint, and end of each overlap using the actual display size, anchor, pivot, opacity curve, and project background.
+
+- Co-register plates that describe one continuous action. Their visible pivot, direction, scale, and contact point must agree before blending.
+- Crossfade overlapping semantic layers. Do not render two complete silhouettes at full opacity through the same transition.
+- Make impact add contact, debris, compression, or a restrained glint; impact must not repaint the complete body while the body is still visible.
+- Reject a transition that produces a second blade, inner crescent, cross flash, detached ripple, or sudden scale jump even when every isolated strip looks correct.
+- Repair timing, anchor, registration, and opacity before repainting accepted raster plates. Re-author only the duplicated local plate if the artifact remains after the composite contract is correct.
+
 ## Sprite sheet contract
 
 - Export transparent PNG sprite sheets with consistent cell dimensions.
@@ -75,4 +85,4 @@ The validator rejects continuous foreground that enters the declared margin whil
 
 ## Export inspection
 
-Check dimensions, frame divisibility, alpha channel, empty frames, pivot drift, color density, final draw size, and source-grid safe margins. Reject sheets whose motion is only one visible frame when the effect is expected to fly, fall, rotate, pulse, or persist. Block a source sheet that fails `validate_sprite_source_grid.py` before it reaches slicing or preview.
+Check dimensions, frame divisibility, alpha channel, empty frames, pivot drift, color density, final draw size, source-grid safe margins, and the overlap contact sheet. Reject sheets whose motion is only one visible frame when the effect is expected to fly, fall, rotate, pulse, or persist. Block a source sheet that fails `validate_sprite_source_grid.py` or the composite continuity gate before it reaches integration.
