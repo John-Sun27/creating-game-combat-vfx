@@ -78,6 +78,8 @@ tests/                                路由、清单逻辑和预览页面回归
 
 ## 使用方法
 
+### 在 Codex 中使用
+
 将本目录安装或链接到 Codex 的 Skills 目录，然后调用：
 
 ```text
@@ -85,6 +87,20 @@ tests/                                路由、清单逻辑和预览页面回归
 ```
 
 普通使用者无需复制模板、填写 JSON 或执行命令。只需描述目标、范围和是否需要接入游戏；Skill 会判断已有成果与依赖，提出相关阶段并等待你选择，而不是不加区分地执行整套流程。
+
+### 在 Claude Code 中使用
+
+1. 将本仓库安装到 Claude Code 的个人 Skills 目录：
+
+   ```bash
+   git clone https://github.com/John-Sun27/creating-game-combat-vfx.git ~/.claude/skills/creating-game-combat-vfx
+   ```
+
+2. 在 Claude Code 会话中调用：
+
+   ```text
+   /creating-game-combat-vfx 为这组技能设计、制作并接入完整战斗特效。
+   ```
 
 ## 使用示例
 

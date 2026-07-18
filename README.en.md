@@ -77,6 +77,8 @@ tests/                                Routing, manifest logic, and preview-page 
 
 ## Usage
 
+### Use with Codex
+
 Install or link this folder in your Codex skills directory, then invoke:
 
 ```text
@@ -84,6 +86,20 @@ Use $creating-game-combat-vfx to design, produce, and integrate the complete com
 ```
 
 Ordinary users do not need to copy templates, edit JSON, or run commands. Describe the goal, scope, and whether game integration is required; the Skill assesses existing outputs and dependencies, proposes the relevant stages, and waits for your selection instead of running every stage indiscriminately.
+
+### Use with Claude Code
+
+1. Install this repository in your personal Claude Code Skills directory:
+
+   ```bash
+   git clone https://github.com/John-Sun27/creating-game-combat-vfx.git ~/.claude/skills/creating-game-combat-vfx
+   ```
+
+2. Invoke it in a Claude Code session:
+
+   ```text
+   /creating-game-combat-vfx Design, produce, and integrate the complete combat VFX for this ability set.
+   ```
 
 ## Usage examples
 
