@@ -98,3 +98,18 @@ test('English introduction mirrors the Chinese 2D positioning and production goa
   assert.match(readmeEn, /turns ability designs into visual concepts/i);
   assert.match(readmeEn, /integrates them into the project/i);
 });
+
+test('standard mode remains default and Agent mode requires confirmation', () => {
+  assert.match(skill, /standard mode.*default/i);
+  assert.match(skill, /recommend.*high-fidelity Agent mode/i);
+  assert.match(skill, /detected.*signals.*benefit.*cost/i);
+  assert.match(skill, /explicit user confirmation/i);
+  assert.match(skill, /declin.*not answer.*standard mode/i);
+  assert.match(skill, /does not replace.*seven-stage/i);
+});
+
+test('confirmed Agent mode preserves the selected stage scope', () => {
+  assert.match(skill, /only.*stages.*user selected/i);
+  assert.match(skill, /must not.*broaden.*stage/i);
+  assert.match(skill, /independent Agents.*unavailable.*standard mode.*wait/i);
+});

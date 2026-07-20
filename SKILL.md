@@ -11,6 +11,14 @@ Build readable, distinctive combat effects from visual brief through production 
 
 ## Request routing
 
+## Execution modes
+
+Keep **standard mode** as the default implementation of the selectable seven-stage workflow. For a complex request, recommend optional **high-fidelity Agent mode** by naming the detected complexity signals, expected consistency and verification benefit, and added review and evidence cost. Recommendation is not activation: start Agent mode only after explicit user confirmation. Declining it or not answering leaves the request in standard mode.
+
+Complexity signals include persistent state, multiple mechanical events, mixed anchors, overlapping visual owners, strict per-layer timing, high reference fidelity, or formal promotion and device acceptance. Confirmed Agent mode applies only to the stages the user selected and must not broaden stage scope. It does not replace the seven-stage workflow.
+
+If independent Agents are unavailable after confirmation, report the limitation and offer standard mode or waiting. Do not label single-Agent execution as high-fidelity Agent mode.
+
 For a complete request, assess the project and present the selectable seven stages before beginning work. Mark each stage as already satisfied, recommended, or blocked by a missing dependency; give its one-line output and recommend a selection with a reason.
 
 For an explicit partial request, enter the matching stage directly. Add only the minimum required dependencies when an input is missing, explain why they are required, and accept an existing design or resource after checking it instead of repeating completed work.
@@ -48,6 +56,7 @@ Never change combat mechanics to compensate for a visual positioning error.
 
 ## Resource routing
 
+- Read `references/high-fidelity-agent-mode.md` only after the user confirms high-fidelity Agent mode.
 - Read `references/visual-design.md` before concept or storyboard work.
 - Read `references/asset-production.md` before generating, slicing, or exporting sprite assets. Run its source-grid boundary validator on every source sheet before slicing.
 - Read `references/preview-workflow.md` completely before any resource preview work.
