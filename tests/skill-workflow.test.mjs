@@ -18,6 +18,24 @@ const readmeEn = fs.readFileSync(new URL('../README.en.md', import.meta.url), 'u
 const previewScreenshot = new URL('../docs/reference-images/vfx_previewer.png', import.meta.url);
 const sourceGridValidator = new URL('../scripts/validate_sprite_source_grid.py', import.meta.url);
 
+function assertSemanticAnchorGuidance(anchors) {
+  assert.match(anchors, /attached status and body-centered application art.*target-body center/i);
+  assert.match(anchors, /visual intentionally following a target's contact point.*target foot/i);
+  assert.match(anchors, /fixed telegraphs, persistent zones, fixed impacts, and death-event ground points.*locked ground snapshot/i);
+  assert.match(anchors, /unless the mechanic contract explicitly defines following behavior/i);
+  assert.match(anchors, /moving and sky-spawn bodies.*separate from their locked impact point/i);
+  const universalFootGuidance = anchors.split(/\r?\n/).filter((line) => (
+    /\b(?:target |visible )?foot(?: anchor)?s?\b/i.test(line)
+    && /\b(?:all|every|always|mandatory|required|universal)\b/i.test(line)
+    && /\b(?:hit|impact|projectile|effect)s?\b/i.test(line)
+  ));
+  assert.equal(
+    universalFootGuidance.length,
+    0,
+    'anchor guidance must not make foot anchors universal or mandatory for a broad effect class',
+  );
+}
+
 test('full requests present a selectable seven-stage workflow', () => {
   for (const phrase of ['seven stages', 'execute all', 'first N stages', 'specific stages', 'continue from stage']) {
     assert.match(skill.toLowerCase(), new RegExp(phrase.toLowerCase()));
@@ -164,10 +182,13 @@ test('runtime integration defines a complete mechanic-visual contract', () => {
 
 test('runtime anchors are selected semantically rather than universally', () => {
   const anchors = runtimeIntegration.split('## Anchors')[1].split('## Semantic-layer transitions')[0];
-  assert.match(anchors, /attached status and body-centered application art.*target-body center/i);
-  assert.match(anchors, /visual intentionally following a target's contact point.*target foot/i);
-  assert.match(anchors, /fixed telegraphs, persistent zones, fixed impacts, and death-event ground points.*locked ground snapshot/i);
-  assert.match(anchors, /unless the mechanic contract explicitly defines following behavior/i);
-  assert.match(anchors, /moving and sky-spawn bodies.*separate from their locked impact point/i);
-  assert.doesNotMatch(anchors, /\b(?:all|every|always|universal)\b[\s\S]{0,120}\b(?:monster|target)\b[\s\S]{0,120}\bfoot\b/i);
+  assertSemanticAnchorGuidance(anchors);
+
+  for (const universalFootRule of [
+    'Use the target foot for every hit effect.',
+    'All hit effects use the visible foot anchor.',
+    'Foot anchors are mandatory for all projectiles.',
+  ]) {
+    assert.throws(() => assertSemanticAnchorGuidance(`${anchors}\n- ${universalFootRule}`));
+  }
 });
