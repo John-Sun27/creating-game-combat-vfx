@@ -175,6 +175,20 @@ test('configured choreography overlaps semantic layers', () => {
   assert.ok(Math.abs(bodyProgress - (0.6 - 0.15) / 0.55) < 1e-12);
 });
 
+test('configured choreography preserves global timeline progress for attached support layers', () => {
+  const configured = structuredClone(effect);
+  configured.preview = {
+    durationMs: 1000,
+    motion: 'front',
+    layers: {
+      body: { start: .1, end: .8, anchor: 'moving' },
+      residue: { start: .2, end: .9, anchor: 'moving' },
+    },
+  };
+  const instances = buildPreviewInstances(configured, 500);
+  assert.deepEqual(instances.map((entry) => entry.timelineProgress), [.5, .5]);
+});
+
 test('configured choreography crossfades overlapping semantic layers', () => {
   const configured = structuredClone(effect);
   configured.preview = {
@@ -225,6 +239,16 @@ test('target-anchored falling body travels from above to the target', () => {
     [composePreviewPose(profile, instance, 0).y, composePreviewPose(profile, instance, 1).y],
     [-150, 150],
   );
+});
+
+test('moving-anchored residue follows the body at global timeline progress', () => {
+  const profile = { motion: 'front', directionDeg: 90, distance: 300 };
+  const body = { layerName: 'body', anchor: 'moving', timelineProgress: .25 };
+  const residue = { layerName: 'residue', anchor: 'moving', timelineProgress: .25 };
+  const bodyPose = composePreviewPose(profile, body, .4);
+  const residuePose = composePreviewPose(profile, residue, .9);
+  assert.equal(residuePose.y, bodyPose.y);
+  assert.notEqual(residuePose.y, 0);
 });
 
 test('manual profile motion overrides configured body motion', () => {

@@ -189,6 +189,7 @@
           width: Number(config.width) || undefined,
           height: Number(config.height) || undefined,
           opacity: Math.max(0, Math.min(1, fadeInOpacity, fadeOutOpacity)),
+          timelineProgress: progress,
           localProgress,
           elapsedMs: localProgress * (end - start) * durationMs,
           delayMs: 0,
@@ -203,6 +204,12 @@
   function composePreviewPose(profile, instance, progress, instanceIndex = 0) {
     const origin = motionPose({ ...profile, motion: 'travel' }, 0);
     const target = motionPose({ ...profile, motion: 'travel' }, 1);
+    if (instance?.anchor === 'moving') {
+      const timelineProgress = Number.isFinite(Number(instance.timelineProgress))
+        ? Number(instance.timelineProgress)
+        : progress;
+      return motionPose({ ...profile, motion: profile.motion }, timelineProgress, instanceIndex);
+    }
     const anchor = instance?.anchor === 'origin'
       ? origin
       : instance?.anchor === 'target' ? target : { x: 0, y: 0, rotationDeg: 0 };
