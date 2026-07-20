@@ -23,6 +23,8 @@ If independent Agents are unavailable after confirmation, report the limitation 
 
 For a complete request, assess the project and present the selectable seven stages before beginning work. Mark each stage as already satisfied, recommended, or blocked by a missing dependency; give its one-line output and recommend a selection with a reason.
 
+Every complete-request routing response must, before beginning work, present all four exact choice forms: `execute all`, `first N stages`, `specific stages`, and `continue from stage N`; label every stage as `already satisfied`, `recommended`, or `blocked`.
+
 For a complex partial request, recommend high-fidelity Agent mode and wait for explicit confirmation before starting the selected stages. This confirmation gate takes precedence over direct partial-request entry; keep the recommendation and any confirmed work limited to the requested stages.
 
 For an explicit partial request, enter the matching stage directly. Add only the minimum required dependencies when an input is missing, explain why they are required, and accept an existing design or resource after checking it instead of repeating completed work.

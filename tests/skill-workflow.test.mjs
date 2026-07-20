@@ -147,6 +147,13 @@ test('complex partial requests wait for mode confirmation before selected-stage 
   assert.match(skill, /confirmation gate.*takes precedence.*direct partial-request entry/i);
 });
 
+test('complete-request routing responses preserve every stage choice and status label', () => {
+  assert.match(
+    skill,
+    /complete-request routing response.*before beginning.*execute all.*first N stages.*specific stages.*continue from stage N.*already satisfied.*recommended.*blocked/is,
+  );
+});
+
 test('confirmed Agent mode preserves the selected stage scope', () => {
   assert.match(skill, /only.*stages.*user selected/i);
   assert.match(skill, /must not.*broaden.*stage/i);
