@@ -57,6 +57,12 @@ Game VFX requirements should be defined and produced according to the game's vis
 6. **Test tooling:** Add independent GM/debug playback and verify configuration export.
 7. **Acceptance optimization:** Complete visual acceptance and combat regression tests, correct issues, and deliver the final report.
 
+## Optional high-fidelity Agent mode
+
+The standard seven-stage workflow always remains the default mode. For complex tasks involving persistent state, multiple mechanical events, mixed anchors, overlapping visual layers, or strict timing, the Skill explains the detected complexity signals, expected benefit, and added review cost before recommending optional high-fidelity Agent mode. It starts only after explicit user confirmation; refusal or no confirmation keeps standard mode, and Agent mode never broadens the stages selected by the user.
+
+Once confirmed, the Skill decomposes the current mechanics into an event graph and bounded task packets. A production Agent completes the selected stage, then an independent review Agent checks the assets, code, tests, and acceptance evidence. Zhuque Brand is an ordinary worked instance combining attached state, periodic events, natural expiry, and a death chain—not a special workflow or a universal value template for other abilities.
+
 ## Repository structure
 
 ```text
@@ -68,6 +74,7 @@ references/runtime-integration.md     Motion archetypes and visual-state contrac
 references/config-and-export.md       Configuration and table export workflow
 references/qa-and-acceptance.md       Automated and visual acceptance criteria
 references/preview-workflow.md        Local resource preview, inspection, and approval workflow
+references/high-fidelity-agent-mode.md  Optional Agent production and review workflow for complex tasks
 assets/effect-manifest.example.json   Internal effect manifest template used by the Skill
 docs/reference-images/                Combat VFX storyboard images used by the repository overview
 scripts/validate_effect_manifest.mjs  Deterministic internal manifest validator

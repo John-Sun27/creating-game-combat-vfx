@@ -264,3 +264,22 @@ test('runtime promotion protects unaffected resources and waits for acceptance',
   assert.match(qaAndAcceptance, /simulator or device/i);
   assert.match(qaAndAcceptance, /commit.*after.*user accepts/i);
 });
+
+test('bilingual introductions describe optional high-fidelity Agent mode', () => {
+  assert.match(readmeZh, /## 可选的高保真 Agent 模式/);
+  assert.match(readmeZh, /标准七阶段工作流.*默认模式/s);
+  assert.match(readmeZh, /用户明确确认.*启动/s);
+  assert.match(readmeZh, /事件图.*任务包.*制作 Agent.*独立复核 Agent/s);
+  assert.match(readmeZh, /朱雀烙印.*普通实例.*不是.*通用.*模板/s);
+
+  assert.match(readmeEn, /## Optional high-fidelity Agent mode/i);
+  assert.match(readmeEn, /standard seven-stage workflow.*default mode/is);
+  assert.match(readmeEn, /explicit user confirmation.*start/is);
+  assert.match(readmeEn, /event graph.*task packets.*production Agent.*independent review Agent/is);
+  assert.match(readmeEn, /Zhuque Brand.*ordinary worked instance.*not.*universal.*template/is);
+});
+
+test('bilingual repository structures list the Agent mode reference', () => {
+  assert.match(readmeZh, /references\/high-fidelity-agent-mode\.md\s+复杂任务的可选 Agent 制作与复核流程/);
+  assert.match(readmeEn, /references\/high-fidelity-agent-mode\.md\s+Optional Agent production and review workflow for complex tasks/i);
+});

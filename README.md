@@ -58,6 +58,12 @@
 6. **测试工具：** 增加独立的 GM/调试播放入口，并验证配置导出。
 7. **验收优化：** 完成视觉验收和战斗回归测试，修正问题并交付最终报告。
 
+## 可选的高保真 Agent 模式
+
+标准七阶段工作流始终是默认模式。遇到持续状态、多机械事件、混合锚点、重叠视觉层或严格时序等复杂任务时，Skill 会说明检测到的复杂度信号、预期收益和额外审查成本，并推荐可选的高保真 Agent 模式。只有用户明确确认后才会启动；拒绝或未确认时继续使用标准模式，且 Agent 模式不会扩大用户已选择的阶段范围。
+
+启用后，Skill 会把当前技能机制拆成事件图和边界清晰的任务包，由制作 Agent 完成所选阶段，再由独立复核 Agent 检查资源、代码、测试和验收证据。朱雀烙印只是“附着状态、周期触发、自然结束和死亡连锁”的一个普通实例，不是特殊流程，也不会成为其他技能的通用参数模板。
+
 ## 仓库结构
 
 ```text
@@ -69,6 +75,7 @@ references/runtime-integration.md     播放模型与视觉状态协议
 references/config-and-export.md       配置表和导表工作流
 references/qa-and-acceptance.md       自动化与视觉验收标准
 references/preview-workflow.md        本地资源预览、检查与确认流程
+references/high-fidelity-agent-mode.md  复杂任务的可选 Agent 制作与复核流程
 assets/effect-manifest.example.json   Skill 内部使用的特效清单模板
 docs/reference-images/                仓库说明使用的战斗特效分镜参考图
 scripts/validate_effect_manifest.mjs  Skill 内部使用的确定性清单校验工具
