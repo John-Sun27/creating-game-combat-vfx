@@ -36,6 +36,8 @@ Use `groundPoint` for telegraphs, impact art, and persistent zones. Use `visualP
 
 Define each event with Mechanical event, Visual owner, Visual layers, Anchor, Lifetime, Frame contract, Draw order, and Exit priority. Use one visual owner for a complete silhouette at a given time. Give attached bodies, tick pulses, expiry fades, impacts, and death events independent lifecycles when their mechanics differ.
 
+For every visual layer, the Frame contract must state its frame count, per-layer FPS, terminal-frame reachability, loop rule, and hold behavior. A looping layer restarts its declared frame range until its lifecycle exits. A non-looping layer plays once; `holdLast: true` keeps its final frame visible until exit, while `holdLast: false` stops drawing after that frame. Configure the lifecycle so playback can reach the final frame before the layer exits or stops drawing.
+
 For every non-looping layer, prove its terminal frame is reachable inside its lifetime. At an exact transition boundary, prevent two complete high-opacity silhouettes from coexisting. Define same update priority for hit, expiry, death, refresh, escape, and chain events that can coincide.
 
 ## Impact lifetime

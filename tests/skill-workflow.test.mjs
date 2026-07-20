@@ -28,10 +28,12 @@ function assertSemanticAnchorGuidance(anchors) {
   assert.match(anchors, /fixed telegraphs, persistent zones, fixed impacts, and death-event ground points.*locked ground snapshot/i);
   assert.match(anchors, /unless the mechanic contract explicitly defines following behavior/i);
   assert.match(anchors, /moving and sky-spawn bodies.*separate from their locked impact point/i);
-  const universalFootGuidance = anchors.split(/\r?\n/).filter((line) => (
-    /\b(?:target |visible )?foot(?: anchor)?s?\b/i.test(line)
-    && /\b(?:all|every|always|mandatory|required|universal)\b/i.test(line)
-    && /\b(?:hit|impact|projectile|effect)s?\b/i.test(line)
+  const universalFootGuidance = anchors.split(/[.\r\n]+/).filter((statement) => (
+    /\b(?:target |visible )?foot(?: anchor)?s?\b/i.test(statement)
+    && (
+      /\b(?:all|every|always|mandatory|required|universal)\b.*\b(?:hit|impact|projectile|effect)s?\b/i.test(statement)
+      || /\b(?:telegraphs?|zones?|domains?|impacts?|projectiles?|effects?)\b.*\buse\b.*\bfoot(?: anchor)?s?\b/i.test(statement)
+    )
   ));
   assert.equal(
     universalFootGuidance.length,
@@ -200,6 +202,17 @@ test('runtime integration defines a complete mechanic-visual contract', () => {
   assert.match(runtimeIntegration, /same update.*priority/i);
 });
 
+test('runtime frame contracts define playback and terminal-frame reachability per layer', () => {
+  const mechanicContract = runtimeIntegration.match(
+    /## Mechanic-visual event contract[\s\S]*?(?=\n## )/i,
+  )?.[0] ?? '';
+  assert.match(mechanicContract, /frame count/i);
+  assert.match(mechanicContract, /per-layer FPS/i);
+  assert.match(mechanicContract, /loop rule/i);
+  assert.match(mechanicContract, /hold behavior/i);
+  assert.match(mechanicContract, /lifecycle.*reach.*final frame/i);
+});
+
 test('runtime anchors are selected semantically rather than universally', () => {
   const anchors = runtimeIntegration.split('## Anchors')[1].split('## Semantic-layer transitions')[0];
   assertSemanticAnchorGuidance(anchors);
@@ -213,12 +226,35 @@ test('runtime anchors are selected semantically rather than universally', () => 
   }
 });
 
+test('QA acceptance and runtime guidance share semantic ground-anchor rules', () => {
+  const runtimeAnchors = runtimeIntegration.split('## Anchors')[1].split('## Semantic-layer transitions')[0];
+  const qaChecklist = qaAndAcceptance.split('## Acceptance checklist')[1].split('## Test surface')[0];
+  const crossReference = `${runtimeAnchors}\n${qaChecklist}`;
+
+  assertSemanticAnchorGuidance(crossReference);
+  assert.match(qaChecklist, /fixed telegraphs, zones, and impacts.*locked-ground snapshots/i);
+  assert.match(qaChecklist, /target-foot.*only when.*deliberately follows.*target contact/i);
+  assert.throws(() => assertSemanticAnchorGuidance(
+    `${crossReference}\n- Ground telegraphs, impacts, and domains use foot anchors.`,
+  ));
+});
+
 test('asset evidence is regenerated from authoritative current inputs', () => {
   assert.match(assetProduction, /audit data.*current source plates/i);
   assert.match(assetProduction, /old assets.*own manifest/i);
   assert.match(assetProduction, /actual project background/i);
   assert.match(assetProduction, /manifest display size.*anchor.*opacity/i);
   assert.match(assetProduction, /telegraph.*body.*body.*impact.*impact.*residue/is);
+});
+
+test('asset evidence records reproducible provenance and excludes report-only proof', () => {
+  const evidenceProvenance = assetProduction.match(
+    /## Evidence provenance[\s\S]*?(?=\n## )/i,
+  )?.[0] ?? '';
+  assert.match(evidenceProvenance, /recorded tool or command/i);
+  assert.match(evidenceProvenance, /audits and contact sheets.*identified or hashed authoritative inputs and manifests/is);
+  assert.match(evidenceProvenance, /static hand-authored reports.*supplemental only/is);
+  assert.match(evidenceProvenance, /must not be the sole evidence/i);
 });
 
 test('runtime promotion protects unaffected resources and waits for acceptance', () => {

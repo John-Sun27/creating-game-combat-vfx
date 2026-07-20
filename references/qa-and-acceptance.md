@@ -22,7 +22,8 @@ Capture each spell at anticipation, early body, mid body, impact, and residue. F
 - Flying and moving effects translate instead of stretch.
 - Trails follow the parent and do not remain at an old location.
 - Falling effects visibly begin above targets.
-- Ground telegraphs, impacts, and domains use foot anchors.
+- Fixed telegraphs, zones, and impacts use locked-ground snapshots.
+- Use a target-foot anchor only when the effect deliberately follows target contact.
 - Multi-hit and multi-projectile counts are readable.
 - Impact flashes retain element color and do not become solid white.
 - One-shot frames disappear instead of freezing.

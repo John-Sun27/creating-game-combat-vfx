@@ -31,6 +31,10 @@ Measure each plate and derived frame, using project-specific thresholds when ava
 
 Reject the source rather than hiding a failure with reduced opacity, bloom, runtime scale, atlas padding, or extra cropping.
 
+## Evidence provenance
+
+Generate every acceptance artifact with a recorded tool or command so another reviewer can reproduce it. For audits and contact sheets, record identified or hashed authoritative inputs and manifests alongside the generated output. Static hand-authored reports are supplemental only and must not be the sole evidence for acceptance.
+
 ### 4. Compare on the project stage
 
 Slice old assets with their own manifest and new assets with the new manifest; never apply a new frame count to an old sheet. Use the actual project background. Build overlap sheets from manifest display size, anchor, pivot, timing window, and opacity curve for telegraph/body, body/impact, and impact/residue contacts.
