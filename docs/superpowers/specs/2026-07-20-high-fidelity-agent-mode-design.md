@@ -31,16 +31,20 @@ The recommendation must name the detected signals, the expected benefit (higher 
 
 High-fidelity mode applies to whichever stages the user selected.
 
-For each implementation unit:
+First convert the selected skill mechanics into an event graph. Each node is an authoritative mechanical event such as cast, spawn, travel, collision, tick, refresh, expire, death, counter, or chain. Each edge records ordering, ownership transfer, cancellation, or same-update priority. Build production units from event nodes and their required visual layers instead of copying a previous skill's timeline.
 
-1. Create a bounded brief with inputs, outputs, allowed files, invariants, and verification commands.
-2. Assign an implementation Agent to produce raw artifacts and evidence.
-3. Assign an independent review Agent to inspect the artifacts, diffs, tests, visual reports, and scope.
+For each production unit:
+
+1. Create an Agent task packet containing the mechanical event, visual intent, approved references, archetype, owner, anchors, layers, lifetime, frame contract, allowed files, invariants, expected evidence, and verification commands.
+2. Assign a production Agent for the selected stage: visual design, asset production, runtime integration, or acceptance correction.
+3. Assign an independent review Agent to inspect the task packet, artifacts, diffs, tests, visual reports, and scope.
 4. Classify findings as Critical, Important, or Minor.
-5. Return Critical and Important findings to the same implementation unit for correction, then repeat independent review.
+5. Return Critical and Important findings to the same production unit for correction, then repeat independent review using the unchanged mechanic contract.
 6. Advance only when no Critical or Important finding remains.
 
 The review loop must preserve user approval gates after visual design, resource preview, and final in-game acceptance. It must not silently broaden the selected stages.
+
+Agent roles are reusable capabilities, not fixed team members. A simple selected stage may need one production Agent and one review Agent. A multi-event skill may create several bounded production units, but each unit must remain traceable to one event-graph node or one explicit transition between nodes.
 
 ## General mechanic-visual contract
 
@@ -77,11 +81,19 @@ Apply only the templates required by the effect:
 
 Templates define questions and invariants, not fixed timings, anchors, frame counts, or art.
 
-## Zhuque example boundary
+## Mechanism-driven composition example
 
-Zhuque Brand is an example combining an attached status, periodic visual pulse, natural-expiry fade, and death-triggered chain event. Its monster-center application, body attachment, foot-centered death explosion, event timings, frame counts, and damage rules are project-specific evidence. They must not become defaults for other skills.
+Compose a complex effect from reusable event and archetype contracts. For example, a persistent mark that deals periodic damage and explodes on death becomes:
 
-The reusable lessons are event decomposition, semantic anchors, single visual ownership, independent visual lifecycles, terminal-frame reachability, explicit same-update priority, and independent review.
+1. an apply event using an attached-status archetype;
+2. a tick event using a short pulse lifecycle;
+3. a natural-expiry event using an attached fade lifecycle;
+4. a death event using a ground or target-centered one-shot archetype;
+5. an optional chain event owned by a separate world event.
+
+This decomposition is the reusable Agent production scheme. The production and review Agents derive anchors, timing, frame counts, draw order, and transitions from the current mechanic contract and approved visual design. They do not inherit those values from the example.
+
+Zhuque Brand may be documented as one successful instance of this composition, but it has no special workflow. Its monster-center application, body attachment, foot-centered death explosion, timings, frame counts, and damage rules remain project-specific evidence rather than defaults.
 
 ## Reproducible asset and preview evidence
 
@@ -108,7 +120,7 @@ Static hand-authored reports may supplement inspection but cannot be the only ac
 ## Skill file changes
 
 - Update `SKILL.md` with mode routing, complexity detection, user confirmation, and reference routing.
-- Add `references/high-fidelity-agent-mode.md` with the detailed Agent workflow and evidence contract.
+- Add `references/high-fidelity-agent-mode.md` with event-graph decomposition, reusable Agent task packets, the production/review loop, and the evidence contract.
 - Update `references/runtime-integration.md` with the general mechanic-visual contract and timing/anchor rules.
 - Update `references/asset-production.md` with reproducible report and manifest-specific comparison rules.
 - Update `references/qa-and-acceptance.md` with rollback, hash protection, device scenarios, and post-acceptance commit gate.
@@ -121,6 +133,8 @@ Static hand-authored reports may supplement inspection but cannot be the only ac
 - Simple or explicitly partial requests remain lightweight.
 - Confirmed mode can execute only selected stages.
 - Critical and Important review findings block advancement until re-reviewed.
-- Zhuque remains a combination example, not a universal template.
+- The Agent workflow starts from the current skill's event graph rather than a named skill template.
+- Persistent marks, projectiles, ground zones, falling attacks, shields, and chain events can use the same task-packet and review structure.
+- Zhuque remains an ordinary worked instance of mechanism-driven composition, not a special workflow or a universal source of values.
 - General contracts cover anchors, visual ownership, independent lifecycles, per-layer FPS, same-update priority, reproducible evidence, rollback, and final device acceptance.
 - Existing repository changes outside this design remain untouched.
