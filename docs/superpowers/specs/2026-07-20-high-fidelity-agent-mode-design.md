@@ -6,6 +6,10 @@ Extend `creating-game-combat-vfx` with an optional high-fidelity workflow for co
 
 The existing seven selectable stages remain authoritative. The new mode changes execution and review rigor, not the user's ability to run all stages, the first N stages, selected stages, or continue from a later stage.
 
+High-fidelity Agent mode is an additive option. It does not replace, rewrite, or become the default implementation of the standard workflow. Declining it, or not answering its recommendation, leaves the request in standard mode.
+
+If the user confirms high-fidelity Agent mode but independent Agents are unavailable, report that limitation and offer to continue in standard mode or wait. Do not silently label a single-Agent execution as high-fidelity Agent mode.
+
 ## Mode selection
 
 ### Standard mode
@@ -130,6 +134,7 @@ Static hand-authored reports may supplement inspection but cannot be the only ac
 
 - Complex requests cause a recommendation with reasons, costs, and benefits.
 - High-fidelity mode never starts before user confirmation.
+- Standard mode remains the unchanged default; the optional Agent workflow never replaces it.
 - Simple or explicitly partial requests remain lightweight.
 - Confirmed mode can execute only selected stages.
 - Critical and Important review findings block advancement until re-reviewed.
