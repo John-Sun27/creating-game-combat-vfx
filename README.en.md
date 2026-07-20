@@ -114,7 +114,7 @@ Ordinary users do not need to copy templates, edit JSON, or run commands. Descri
 
 The user provides only the goal and scope:
 
-> Use `$creating-game-combat-vfx` to design complete combat VFX for sword, fire, and water ability sets. Approve the visual direction first, then produce authored sprite assets and integrate them without changing existing damage mechanics. Expose scale and offsets for tuning, and verify every ability through the hidden GM panel.
+> Use `$creating-game-combat-vfx` to design complete combat VFX for sword, fire, and water ability sets. (PS: You need to provide your own ability designs here.)
 
 For a complete request, the Skill's first response lists the seven selectable stages and marks each one as already satisfied, recommended, or blocked by a missing dependency:
 

@@ -131,6 +131,11 @@ test('English introduction mirrors the Chinese 2D positioning and production goa
   assert.match(readmeEn, /integrates them into the project/i);
 });
 
+test('English complete-request example mirrors the user-supplied design note', () => {
+  assert.match(readmeZh, /这里需要提供你自己的技能设计/);
+  assert.match(readmeEn, /provide your own ability designs/i);
+});
+
 test('standard mode remains default and Agent mode requires confirmation', () => {
   assert.match(skill, /standard mode.*default/i);
   assert.match(skill, /recommend.*high-fidelity Agent mode/i);
