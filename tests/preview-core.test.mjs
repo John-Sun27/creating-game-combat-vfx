@@ -8,12 +8,14 @@ const {
   advanceTimeline,
   buildLifecycle,
   buildPreviewInstances,
+  buildPreviewStageInstances,
   buildStageInstances,
   composePreviewPose,
   inspectEffect,
   instanceProgress,
   motionPose,
   parsePngHeader,
+  previewStageBounds,
   resolvePreviewProfile,
   resetTimeline,
   sampleSpriteFrame,
@@ -175,6 +177,56 @@ test('configured choreography overlaps semantic layers', () => {
   assert.ok(Math.abs(bodyProgress - (0.6 - 0.15) / 0.55) < 1e-12);
 });
 
+test('layer instances give repeated residue layers independent local clocks', () => {
+  const configured = structuredClone(effect);
+  configured.preview = {
+    durationMs: 2200,
+    layerInstances: [
+      { id: 'collision-residue', layerName: 'residue', startMs: 980, endMs: 1380, anchor: 'target', fps: 15 },
+      { id: 'actor-outro-residue', layerName: 'residue', startMs: 1960, endMs: 2200, anchor: 'origin', fps: 25 },
+    ],
+  };
+
+  assert.deepEqual(buildPreviewInstances(configured, 979), []);
+  const collision = buildPreviewInstances(configured, 1000);
+  assert.equal(collision.length, 1);
+  assert.deepEqual(
+    (({ id, layerName, startMs, endMs, anchor, fps, elapsedMs }) => ({ id, layerName, startMs, endMs, anchor, fps, elapsedMs }))(collision[0]),
+    { id: 'collision-residue', layerName: 'residue', startMs: 980, endMs: 1380, anchor: 'target', fps: 15, elapsedMs: 20 },
+  );
+  assert.deepEqual(buildPreviewInstances(configured, 1381), []);
+  const outro = buildPreviewInstances(configured, 2000);
+  assert.equal(outro.length, 1);
+  assert.deepEqual(
+    (({ id, layerName, startMs, endMs, anchor, fps, elapsedMs }) => ({ id, layerName, startMs, endMs, anchor, fps, elapsedMs }))(outro[0]),
+    { id: 'actor-outro-residue', layerName: 'residue', startMs: 1960, endMs: 2200, anchor: 'origin', fps: 25, elapsedMs: 40 },
+  );
+  assert.deepEqual(buildPreviewInstances(configured, 2201), []);
+});
+
+test('layer instances use their local loop setting while non-looping support layers clamp', () => {
+  const configured = structuredClone(effect);
+  configured.layers.body.loop = true;
+  configured.layers.impact.loop = false;
+  configured.layers.residue.loop = false;
+  configured.preview = {
+    durationMs: 2000,
+    layerInstances: [
+      { id: 'body', layer: 'body', startMs: 0, endMs: 1960, anchor: 'moving', fps: 5 },
+      { id: 'impact', layer: 'impact', startMs: 0, endMs: 1960, anchor: 'target', fps: 5 },
+      { id: 'residue', layer: 'residue', startMs: 0, endMs: 1960, anchor: 'target', fps: 5 },
+    ],
+  };
+  const instances = buildPreviewInstances(configured, 1800);
+  const byId = Object.fromEntries(instances.map((instance) => [instance.id, instance]));
+  assert.equal(byId.body.loop, true);
+  assert.equal(byId.impact.loop, false);
+  assert.equal(byId.residue.loop, false);
+  assert.equal(sampleSpriteFrame(8, byId.body.elapsedMs, byId.body.fps, byId.body.loop), 1);
+  assert.equal(sampleSpriteFrame(4, byId.impact.elapsedMs, byId.impact.fps, byId.impact.loop), 3);
+  assert.equal(sampleSpriteFrame(4, byId.residue.elapsedMs, byId.residue.fps, byId.residue.loop), 3);
+});
+
 test('configured choreography preserves global timeline progress for attached support layers', () => {
   const configured = structuredClone(effect);
   configured.preview = {
@@ -226,6 +278,83 @@ test('effect inspection validates preview fade fractions', () => {
     };
     assert.match(inspectEffect(invalid).join('\n'), /body\.fadeIn.*0.*1/i);
   }
+});
+
+test('preview stage bounds sample the full falling, volley, and orbit motion paths', () => {
+  for (const motion of ['travel', 'front', 'out-and-back']) {
+    const bounds = previewStageBounds(
+      { motion, directionDeg: 90, distance: 300 },
+      [{ layerName: 'body', anchor: 'moving', width: 20, height: 20 }],
+    );
+    assert.ok(bounds.minY <= -160, `${motion} includes its origin-side extent`);
+    assert.ok(bounds.maxY >= 160, `${motion} includes its target-side extent`);
+  }
+
+  const falling = previewStageBounds(
+    { motion: 'fall', directionDeg: 90, distance: 600 },
+    [{ layerName: 'body', anchor: 'moving', width: 100, height: 100 }],
+  );
+  assert.ok(falling.minY <= -650);
+  assert.ok(falling.maxY >= 50);
+
+  const volley = previewStageBounds(
+    { motion: 'volley', directionDeg: 90, distance: 300 },
+    Array.from({ length: 5 }, (_, instanceIndex) => ({
+      layerName: 'body', anchor: 'moving', width: 40, height: 40, instanceIndex,
+    })),
+  );
+  assert.ok(volley.minX <= -68);
+  assert.ok(volley.maxX >= 68);
+  assert.ok(volley.minY <= -170);
+  assert.ok(volley.maxY >= 170);
+
+  const orbit = previewStageBounds(
+    { motion: 'orbit', directionDeg: 0, distance: 300 },
+    [{ layerName: 'body', anchor: 'moving', width: 20, height: 20 }],
+  );
+  assert.ok(orbit.minX <= -82);
+  assert.ok(orbit.maxX >= 82);
+  assert.ok(orbit.minY <= -82);
+  assert.ok(orbit.maxY >= 82);
+});
+
+test('preview stage bounds include effect scale and user offsets', () => {
+  const bounds = previewStageBounds(
+    { motion: 'travel', directionDeg: 90, distance: 400 },
+    [{ layerName: 'body', anchor: 'moving', width: 100, height: 100 }],
+    { scale: 2, offsetX: 30, offsetY: -40 },
+  );
+  assert.ok(bounds.minX <= -70);
+  assert.ok(bounds.maxX >= 130);
+  assert.ok(bounds.minY <= -340);
+  assert.ok(bounds.maxY >= 260);
+});
+
+test('preview stage instances include every configured layer instance, not only the current window', () => {
+  const configured = structuredClone(effect);
+  configured.preview = {
+    durationMs: 2200,
+    layerInstances: [
+      { id: 'body', layer: 'body', startMs: 0, endMs: 1960, anchor: 'moving', fps: 15 },
+      { id: 'outro', layer: 'residue', startMs: 1960, endMs: 2200, anchor: 'target', fps: 25 },
+    ],
+  };
+  assert.deepEqual(buildPreviewStageInstances(configured).map((entry) => entry.id), ['body', 'outro']);
+});
+
+test('effect inspection isolates incomplete layer instances', () => {
+  const invalid = structuredClone(effect);
+  invalid.preview = {
+    durationMs: 1000,
+    layerInstances: [{ id: '', layerName: 'unknown', startMs: 200, endMs: 100, anchor: 'center', fps: 0, loop: 'yes' }],
+  };
+  const errors = inspectEffect(invalid).join('\n');
+  assert.match(errors, /layerInstances\[0\]\.id/i);
+  assert.match(errors, /layerInstances\[0\]\.layerName/i);
+  assert.match(errors, /layerInstances\[0\]\.startMs.*endMs/i);
+  assert.match(errors, /layerInstances\[0\]\.anchor.*origin.*target.*moving/i);
+  assert.match(errors, /layerInstances\[0\]\.fps/i);
+  assert.match(errors, /layerInstances\[0\]\.loop/i);
 });
 
 test('legacy effects report no configured choreography', () => {

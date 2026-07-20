@@ -157,6 +157,49 @@
   }
 
   function buildPreviewInstances(effect, elapsedMs) {
+    const layerInstances = effect?.preview?.layerInstances;
+    if (Array.isArray(layerInstances)) {
+      const durationMs = Math.max(1, Number(effect.preview.durationMs) || 1);
+      const globalMs = Number(elapsedMs) || 0;
+      return layerInstances.flatMap((config) => {
+        const layerName = config?.layerName || config?.layer;
+        const startMs = Number(config?.startMs);
+        const endMs = Number(config?.endMs);
+        const fps = Number(config?.fps);
+        if (!config?.id
+          || !layerName
+          || !Number.isFinite(startMs)
+          || !Number.isFinite(endMs)
+          || endMs <= startMs
+          || !['origin', 'target', 'moving'].includes(config.anchor)
+          || !Number.isFinite(fps)
+          || fps <= 0
+          || globalMs < startMs
+          || globalMs > endMs) return [];
+        const localElapsedMs = globalMs - startMs;
+        const localProgress = localElapsedMs / (endMs - startMs);
+        return [{
+          id: config.id,
+          layerName,
+          startMs,
+          endMs,
+          anchor: config.anchor,
+          fps,
+          motion: config.motion || (layerName === 'body' ? effect.preview.motion : 'static'),
+          width: Number(config.width) || undefined,
+          height: Number(config.height) || undefined,
+          opacity: Number.isFinite(Number(config.opacity)) ? Number(config.opacity) : 1,
+          loop: typeof config.loop === 'boolean' ? config.loop : effect.layers?.[layerName]?.loop,
+          timelineProgress: Math.max(0, Math.min(1, globalMs / durationMs)),
+          localProgress,
+          elapsedMs: localElapsedMs,
+          delayMs: 0,
+          offsetX: Number(config.offsetX) || 0,
+          offsetY: Number(config.offsetY) || 0,
+          fixed: layerName !== 'body',
+        }];
+      });
+    }
     const choreography = effect?.preview?.layers;
     if (!choreography || typeof choreography !== 'object') return [];
     const durationMs = Math.max(1, Number(effect.preview.durationMs) || 1);
@@ -199,6 +242,93 @@
         };
       }).filter(Boolean);
     });
+  }
+
+  function buildPreviewStageInstances(effect) {
+    const layerInstances = effect?.preview?.layerInstances;
+    if (Array.isArray(layerInstances)) {
+      return layerInstances.flatMap((config) => {
+        const layerName = config?.layerName || config?.layer;
+        const startMs = Number(config?.startMs);
+        const endMs = Number(config?.endMs);
+        const fps = Number(config?.fps);
+        if (!config?.id
+          || !layerName
+          || !Number.isFinite(startMs)
+          || !Number.isFinite(endMs)
+          || endMs <= startMs
+          || !['origin', 'target', 'moving'].includes(config.anchor)
+          || !Number.isFinite(fps)
+          || fps <= 0) return [];
+        return [{
+          id: config.id,
+          layerName,
+          anchor: config.anchor,
+          motion: config.motion || (layerName === 'body' ? effect.preview.motion : 'static'),
+          width: Number(config.width) || undefined,
+          height: Number(config.height) || undefined,
+          offsetX: Number(config.offsetX) || 0,
+          offsetY: Number(config.offsetY) || 0,
+        }];
+      });
+    }
+
+    const choreography = effect?.preview?.layers;
+    if (!choreography || typeof choreography !== 'object') return [];
+    return REQUIRED_LAYERS.flatMap((layerName) => {
+      const config = choreography[layerName];
+      if (!config) return [];
+      const count = Math.max(1, Math.floor(Number(config.count)
+        || (layerName === 'body' && effect.visualArchetype === 'projectile-volley' ? 5 : 1)));
+      return Array.from({ length: count }, (_, index) => ({
+        id: count > 1 ? `${layerName}-runtime-${index}` : `${layerName}-runtime`,
+        layerName,
+        anchor: config.anchor || (layerName === 'body' ? 'moving' : 'target'),
+        motion: config.motion || (layerName === 'body' ? effect.preview.motion : 'static'),
+        width: Number(config.width) || undefined,
+        height: Number(config.height) || undefined,
+        offsetX: Number(config.offsetX) || 0,
+        offsetY: Number(config.offsetY) || 0,
+      }));
+    });
+  }
+
+  function previewStageBounds(profile, instances, options = {}) {
+    const scale = Number.isFinite(Number(options.scale)) ? Number(options.scale) : 1;
+    const offsetX = Number(options.offsetX) || 0;
+    const offsetY = Number(options.offsetY) || 0;
+    const sampleCount = Math.max(4, Math.floor(Number(options.sampleCount) || 32));
+    const bounds = { minX: Infinity, maxX: -Infinity, minY: Infinity, maxY: -Infinity };
+
+    (instances || []).forEach((instance, listIndex) => {
+      const width = Math.max(0, Number(instance?.width) || 0);
+      const height = Math.max(0, Number(instance?.height) || 0);
+      const instanceIndex = Number.isFinite(Number(instance?.instanceIndex))
+        ? Number(instance.instanceIndex)
+        : listIndex;
+      for (let sample = 0; sample <= sampleCount; sample += 1) {
+        const progress = sample / sampleCount;
+        const pose = composePreviewPose(
+          profile,
+          { ...instance, timelineProgress: progress },
+          progress,
+          instanceIndex,
+        );
+        const radians = (Number(pose.rotationDeg) || 0) * Math.PI / 180;
+        const halfWidth = Math.abs(width * scale * (pose.scaleX ?? 1)) / 2;
+        const halfHeight = Math.abs(height * scale * (pose.scaleY ?? 1)) / 2;
+        const extentX = Math.abs(halfWidth * Math.cos(radians)) + Math.abs(halfHeight * Math.sin(radians));
+        const extentY = Math.abs(halfWidth * Math.sin(radians)) + Math.abs(halfHeight * Math.cos(radians));
+        const centerX = offsetX + (Number(instance?.offsetX) || 0) + pose.x;
+        const centerY = offsetY + (Number(instance?.offsetY) || 0) + pose.y;
+        bounds.minX = Math.min(bounds.minX, centerX - extentX);
+        bounds.maxX = Math.max(bounds.maxX, centerX + extentX);
+        bounds.minY = Math.min(bounds.minY, centerY - extentY);
+        bounds.maxY = Math.max(bounds.maxY, centerY + extentY);
+      }
+    });
+
+    return Number.isFinite(bounds.minX) ? bounds : null;
   }
 
   function composePreviewPose(profile, instance, progress, instanceIndex = 0) {
@@ -330,6 +460,46 @@
       }
     }
 
+    const layerInstances = effect?.preview?.layerInstances;
+    if (layerInstances !== undefined) {
+      if (!Array.isArray(layerInstances)) {
+        errors.push('preview.layerInstances must be an array');
+      } else {
+        if (!Number.isFinite(effect?.preview?.durationMs) || effect.preview.durationMs <= 0) {
+          errors.push('preview.durationMs must be a finite positive number when layerInstances are configured');
+        }
+        const ids = new Set();
+        layerInstances.forEach((instance, index) => {
+          const path = `layerInstances[${index}]`;
+          const layerName = instance?.layerName || instance?.layer;
+          if (typeof instance?.id !== 'string' || !instance.id.trim()) {
+            errors.push(`${path}.id must be a non-empty string`);
+          } else if (ids.has(instance.id)) {
+            errors.push(`${path}.id must be unique`);
+          } else {
+            ids.add(instance.id);
+          }
+          if (typeof layerName !== 'string' || !REQUIRED_LAYERS.includes(layerName)) {
+            errors.push(`${path}.layerName must reference an existing effect layer`);
+          }
+          if (!Number.isFinite(instance?.startMs)
+            || !Number.isFinite(instance?.endMs)
+            || instance.endMs <= instance.startMs) {
+            errors.push(`${path}.startMs and ${path}.endMs must be finite with startMs before endMs`);
+          }
+          if (!['origin', 'target', 'moving'].includes(instance?.anchor)) {
+            errors.push(`${path}.anchor must be origin, target, or moving`);
+          }
+          if (!Number.isFinite(instance?.fps) || instance.fps <= 0) {
+            errors.push(`${path}.fps must be a finite positive number`);
+          }
+          if ('loop' in (instance || {}) && typeof instance.loop !== 'boolean') {
+            errors.push(`${path}.loop must be a boolean when provided`);
+          }
+        });
+      }
+    }
+
     return errors;
   }
 
@@ -385,12 +555,14 @@
     advanceTimeline,
     buildLifecycle,
     buildPreviewInstances,
+    buildPreviewStageInstances,
     buildStageInstances,
     composePreviewPose,
     inspectEffect,
     instanceProgress,
     motionPose,
     parsePngHeader,
+    previewStageBounds,
     resetTimeline,
     resolvePreviewProfile,
     sampleSpriteFrame,

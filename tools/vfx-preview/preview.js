@@ -37,6 +37,7 @@
     'persistent-ground': 'zone',
     orbit: 'orbit',
   };
+  const STAGE_SAFE_MARGIN = 32;
 
   function imageDimensions(url) {
     return new Promise((resolve, reject) => {
@@ -260,8 +261,10 @@
     state.playing = timeline.playing;
     state.stageIndex = timeline.stageIndex;
     state.stageElapsed = timeline.stageElapsed;
+    const hasRuntimeChoreography = Boolean(entry.effect.preview?.layers)
+      || Array.isArray(entry.effect.preview?.layerInstances);
     state.lifecycle = entry.valid
-      ? (entry.effect.preview?.layers
+      ? (hasRuntimeChoreography
         ? [{ name: 'runtime', durationMs: entry.effect.preview.durationMs, loop: false, motion: 'runtime' }]
         : core.buildLifecycle(entry.effect))
       : [];
@@ -280,6 +283,19 @@
     updateButtons();
   }
 
+  function displaySize(entry, instance) {
+    const resource = entry.resources[instance.layerName];
+    if (!resource) return { width: 0, height: 0 };
+    const frameWidth = resource.width / resource.frames;
+    const maxWidth = 250;
+    const maxHeight = 340;
+    const fit = Math.min(maxWidth / frameWidth, maxHeight / resource.height, 1);
+    return {
+      width: instance.width || frameWidth * fit,
+      height: instance.height || resource.height * fit,
+    };
+  }
+
   function createInstanceNode(entry, instance) {
     const resource = entry.resources[instance.layerName];
     if (!resource) return;
@@ -290,13 +306,52 @@
     layer.setAttribute('role', 'img');
     layer.setAttribute('aria-label', `${entry.effect.key} ${instance.layerName}`);
     layer.style.backgroundImage = `url("${resource.url}")`;
-    const frameWidth = resource.width / resource.frames;
-    const maxWidth = 250;
-    const maxHeight = 340;
-    const fit = Math.min(maxWidth / frameWidth, maxHeight / resource.height, 1);
-    layer.style.width = `${instance.width || frameWidth * fit}px`;
-    layer.style.height = `${instance.height || resource.height * fit}px`;
+    const size = displaySize(entry, instance);
+    layer.style.width = `${size.width}px`;
+    layer.style.height = `${size.height}px`;
     refs.previewStage.append(layer);
+  }
+
+  function syncStageBounds(entry, profile, instances) {
+    const configuredInstances = core.buildPreviewStageInstances(entry.effect);
+    const stageInstances = configuredInstances.length ? configuredInstances : instances;
+    const movingInstances = stageInstances.filter((instance) => ['origin', 'target', 'moving'].includes(instance.anchor));
+    if (!movingInstances.length) {
+      refs.previewStage.style.minWidth = '';
+      refs.previewStage.style.minHeight = '';
+      return;
+    }
+    const bounds = core.previewStageBounds(
+      profile,
+      movingInstances.map((instance) => ({
+        ...instance,
+        ...displaySize(entry, instance),
+        instanceIndex: Number(instance.id.split('-').pop()) || 0,
+      })),
+      {
+        scale: Number(entry.effect.scale) * Number(refs.scaleInput.value),
+        offsetX: Number(entry.effect.offsetX || 0) + Number(refs.offsetXInput.value),
+        offsetY: Number(entry.effect.offsetY || 0) + Number(refs.offsetYInput.value),
+      },
+    );
+    if (!bounds) return;
+    const baseHeight = Number(refs.previewStage.dataset.baseHeight)
+      || refs.previewStage.clientHeight || 520;
+    refs.previewStage.dataset.baseHeight = String(baseHeight);
+    const requiredHeight = Math.ceil(Math.max(
+      (STAGE_SAFE_MARGIN - bounds.minY) / .48,
+      (bounds.maxY + STAGE_SAFE_MARGIN) / .52,
+    ));
+    refs.previewStage.style.minHeight = requiredHeight > baseHeight ? `${requiredHeight}px` : '';
+
+    const baseWidth = Number(refs.previewStage.dataset.baseWidth)
+      || refs.previewStage.clientWidth || 0;
+    refs.previewStage.dataset.baseWidth = String(baseWidth);
+    const requiredWidth = Math.ceil(Math.max(
+      (STAGE_SAFE_MARGIN - bounds.minX) * 2,
+      (bounds.maxX + STAGE_SAFE_MARGIN) * 2,
+    ));
+    refs.previewStage.style.minWidth = requiredWidth > baseWidth ? `${requiredWidth}px` : '';
   }
 
   function syncInstanceNodes(entry, instances) {
@@ -322,9 +377,11 @@
     const configuredInstances = stage.name === 'runtime'
       ? core.buildPreviewInstances(effect, state.stageElapsed)
       : [];
-    const instances = configuredInstances.length
+    const hasLayerInstances = Array.isArray(effect.preview?.layerInstances);
+    const instances = stage.name === 'runtime' && hasLayerInstances
       ? configuredInstances
-      : core.buildStageInstances(effect, stage);
+      : (configuredInstances.length ? configuredInstances : core.buildStageInstances(effect, stage));
+    syncStageBounds(state.current, previewProfile, instances);
     syncInstanceNodes(state.current, instances);
     const frameLabels = [];
 
@@ -336,11 +393,15 @@
         ? { visible: true, elapsedMs: instance.elapsedMs, progress: instance.localProgress }
         : core.instanceProgress(stage, state.stageElapsed, instance);
       const frameCount = effect.layers[instance.layerName].frames;
+      const layerLoop = effect.layers[instance.layerName].loop;
+      const localLoop = typeof instance.loop === 'boolean'
+        ? instance.loop
+        : (typeof layerLoop === 'boolean' ? layerLoop : undefined);
       const frameIndex = core.sampleSpriteFrame(
         frameCount,
         instanceState.elapsedMs,
-        Number(refs.fpsInput.value),
-        ((stage.loop || previewProfile.displayMode === 'persistent-ground') && refs.loopInput.checked),
+        Number(instance.fps) || Number(refs.fpsInput.value),
+        localLoop ?? ((stage.loop || previewProfile.displayMode === 'persistent-ground') && refs.loopInput.checked),
       );
       const style = core.spriteFrameStyle(frameCount, frameIndex);
       node.hidden = !instanceState.visible;
