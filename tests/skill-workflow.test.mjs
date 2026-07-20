@@ -275,13 +275,13 @@ test('bilingual introductions describe optional high-fidelity Agent mode', () =>
   assert.match(readmeZh, /标准七阶段工作流.*默认模式/s);
   assert.match(readmeZh, /用户明确确认.*启动/s);
   assert.match(readmeZh, /事件图.*任务包.*制作 Agent.*独立复核 Agent/s);
-  assert.match(readmeZh, /朱雀烙印.*普通实例.*不是.*通用.*模板/s);
+  assert.doesNotMatch(readmeZh, /朱雀烙印.*普通实例.*不是.*通用.*模板/s);
 
   assert.match(readmeEn, /## Optional high-fidelity Agent mode/i);
   assert.match(readmeEn, /standard seven-stage workflow.*default mode/is);
   assert.match(readmeEn, /explicit user confirmation.*start/is);
   assert.match(readmeEn, /event graph.*task packets.*production Agent.*independent review Agent/is);
-  assert.match(readmeEn, /Zhuque Brand.*ordinary worked instance.*not.*universal.*template/is);
+  assert.doesNotMatch(readmeEn, /Zhuque Brand.*ordinary worked instance.*not.*universal.*template/is);
 });
 
 test('bilingual repository structures list the Agent mode reference', () => {

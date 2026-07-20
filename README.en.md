@@ -61,7 +61,7 @@ Game VFX requirements should be defined and produced according to the game's vis
 
 The standard seven-stage workflow always remains the default mode. For complex tasks involving persistent state, multiple mechanical events, mixed anchors, overlapping visual layers, or strict timing, the Skill explains the detected complexity signals, expected benefit, and added review cost before recommending optional high-fidelity Agent mode. It starts only after explicit user confirmation; refusal or no confirmation keeps standard mode, and Agent mode never broadens the stages selected by the user.
 
-Once confirmed, the Skill decomposes the current mechanics into an event graph and bounded task packets. A production Agent completes the selected stage, then an independent review Agent checks the assets, code, tests, and acceptance evidence. Zhuque Brand is an ordinary worked instance combining attached state, periodic events, natural expiry, and a death chain—not a special workflow or a universal value template for other abilities.
+Once confirmed, the Skill decomposes the current mechanics into an event graph and bounded task packets. A production Agent completes the selected stage, then an independent review Agent checks the assets, code, tests, and acceptance evidence.
 
 ## Repository structure
 
