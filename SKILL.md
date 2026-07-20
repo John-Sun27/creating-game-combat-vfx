@@ -15,11 +15,15 @@ Build readable, distinctive combat effects from visual brief through production 
 
 Keep **standard mode** as the default implementation of the selectable seven-stage workflow. For a complex request, recommend optional **high-fidelity Agent mode** by naming the detected complexity signals, expected consistency and verification benefit, and added review and evidence cost. Recommendation is not activation: start Agent mode only after explicit user confirmation. Declining it or not answering leaves the request in standard mode.
 
+The routing response must explicitly state all three tradeoff items: detected complexity signals, the expected consistency and verification benefit, and the added review and evidence cost. Do not leave the cost implicit in later evidence steps.
+
 Complexity signals include persistent state, multiple mechanical events, mixed anchors, overlapping visual owners, strict per-layer timing, high reference fidelity, or formal promotion and device acceptance. Confirmed Agent mode applies only to the stages the user selected and must not broaden stage scope. It does not replace the seven-stage workflow.
 
 If independent Agents are unavailable after confirmation, report the limitation and offer standard mode or waiting. Do not label single-Agent execution as high-fidelity Agent mode.
 
 For a complete request, assess the project and present the selectable seven stages before beginning work. Mark each stage as already satisfied, recommended, or blocked by a missing dependency; give its one-line output and recommend a selection with a reason.
+
+For a complex partial request, recommend high-fidelity Agent mode and wait for explicit confirmation before starting the selected stages. This confirmation gate takes precedence over direct partial-request entry; keep the recommendation and any confirmed work limited to the requested stages.
 
 For an explicit partial request, enter the matching stage directly. Add only the minimum required dependencies when an input is missing, explain why they are required, and accept an existing design or resource after checking it instead of repeating completed work.
 

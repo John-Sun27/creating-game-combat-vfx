@@ -138,6 +138,15 @@ test('standard mode remains default and Agent mode requires confirmation', () =>
   assert.match(skill, /does not replace.*seven-stage/i);
 });
 
+test('complex-request routing responses explicitly state Agent-mode tradeoffs', () => {
+  assert.match(skill, /routing response must explicitly state.*signals.*benefit.*cost/i);
+});
+
+test('complex partial requests wait for mode confirmation before selected-stage work', () => {
+  assert.match(skill, /complex partial request.*wait.*confirmation.*before starting.*selected stages/i);
+  assert.match(skill, /confirmation gate.*takes precedence.*direct partial-request entry/i);
+});
+
 test('confirmed Agent mode preserves the selected stage scope', () => {
   assert.match(skill, /only.*stages.*user selected/i);
   assert.match(skill, /must not.*broaden.*stage/i);
