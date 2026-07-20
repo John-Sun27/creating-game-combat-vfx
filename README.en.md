@@ -160,3 +160,14 @@ Keep combat authoritative and presentation replaceable:
 - visual events own timestamped impacts, pulses, shatters, and one-shot lifetimes.
 
 This separation is the foundation for effects that look correct without destabilizing gameplay.
+
+## Star and Feedback
+
+If this Skill helps you design, produce, integrate, or validate combat VFX more reliably, you are welcome to Star, Fork, or contribute to the project:
+
+- **Star:** Find the project again later and help more game developers discover it.
+- **Fork:** Adapt it to your engine, renderer, art pipeline, or Agent workflow.
+- **Issue:** Report usage problems, failure cases, missing rules, or compatibility concerns.
+- **Pull Request:** Contribute validated workflow improvements, tool fixes, test cases, or documentation.
+
+A Star is never required to use this project. Try it first, then review generated resources, visual references, third-party dependencies, copyright requirements, and performance constraints before adopting it in production.
