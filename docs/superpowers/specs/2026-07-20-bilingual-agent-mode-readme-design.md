@@ -1,33 +1,41 @@
-# Bilingual Agent Mode README and Git Publish Design
+# 双语 Agent 模式说明与 Git 发布范围
 
-## Goal
+## 目标
 
-Update the Chinese-first repository introduction and its English mirror so both explain the optional high-fidelity Agent workflow introduced by the current Skill, then publish the accumulated Skill and previewer work to GitHub.
+更新以中文为默认首页的仓库介绍，并同步对应的英文说明，使两份 README 都能准确介绍当前 Skill 新增的可选高保真 Agent 工作流。完成文档同步后，将此前积累的 Skill 改动和预览器修复发布到 GitHub。
 
-## Documentation changes
+## 中英文说明修改范围
 
-Add a matching section after the seven-stage workflow in `README.md` and `README.en.md` that states:
+在 `README.md` 和 `README.en.md` 的“七阶段工作流”之后增加内容对应的 Agent 模式说明，明确：
 
-- the existing standard seven-stage workflow remains the default;
-- complex requests may receive a high-fidelity Agent mode recommendation with concrete complexity signals, benefit, and added review cost;
-- Agent mode starts only after explicit user confirmation and never broadens selected stages;
-- confirmed Agent work decomposes current mechanics into an event graph and bounded task packets, with a production Agent and independent review Agent;
-- Zhuque Brand is an ordinary worked composition rather than a special or universal template.
+- 原有标准七阶段工作流仍然是默认模式；
+- 遇到复杂任务时，Skill 可以根据检测到的复杂度信号，向用户推荐高保真 Agent 模式，同时说明预期收益及额外审查成本；
+- Agent 模式必须经过用户明确确认后才能启动，并且不能扩大用户已经选择的阶段范围；
+- 用户确认后，系统会把当前技能机制拆解为事件图和边界清晰的 Agent 任务包，再由制作 Agent 执行、独立复核 Agent 检查；
+- 朱雀烙印只是这种组合机制制作方式的一个普通实例，不是特殊流程，也不会成为其他技能的通用参数模板。
 
-Add `references/high-fidelity-agent-mode.md` to both repository-structure listings with equivalent Chinese and English descriptions.
+在两份 README 的“仓库结构”中同步增加 `references/high-fidelity-agent-mode.md`，分别提供含义一致的中文和英文说明。
 
-## Commit and publish scope
+## 提交与发布范围
 
-Create separate commits for:
+改动拆分为两个独立提交：
 
-1. the existing previewer moving-anchor correction and its regression tests;
-2. the synchronized Chinese and English repository descriptions.
+1. 提交当前已有的预览器移动锚点修复及对应回归测试；
+2. 提交同步后的中文和英文仓库说明。
 
-Preserve the current 13 local Skill-design and implementation commits. Push the resulting `main` history to `origin/main`. Do not stage unrelated files or manufacture a README change where the working-tree bytes already match `HEAD`.
+保留当前本地已经存在的 Skill 设计与实现提交，并将最终 `main` 分支历史推送到 `origin/main`。
 
-## Validation
+不会执行以下操作：
 
-- Verify both READMEs contain the same Agent-mode guarantees and reference entry.
-- Run the complete Node test suite.
-- Validate the example effect manifest and Skill structure.
-- Confirm the local branch and remote branch point to the pushed commit.
+- 不会把无关文件加入提交；
+- 不会覆盖用户尚未确认的其他工作区改动；
+- 如果 `README.md` 只是被换行格式标记为修改、文件内容实际与 `HEAD` 相同，不会制造无意义的中文 README 差异。
+
+## 验证标准
+
+- 中文和英文 README 必须包含含义一致的 Agent 模式规则；
+- 两份 README 都必须列出新增的高保真 Agent 模式参考文件；
+- 运行完整 Node 测试套件并确保全部通过；
+- 验证示例特效清单有效；
+- 验证 Skill 目录结构与元数据有效；
+- 推送完成后，确认本地 `main` 与远端 `origin/main` 指向同一个最终提交。
