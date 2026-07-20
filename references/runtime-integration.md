@@ -46,10 +46,8 @@ Record an occurrence timestamp with every impact. Compute `ageMs = now - bornAtM
 
 - Use only `origin`, `target`, and `moving` in preview layer configuration. Translate project-facing names such as caster or ground into that vocabulary at export time.
 - Select anchors from event semantics: caster body, target body, target foot, locked ground, moving position, or sky spawn.
-- Use target-body center for attached status and body-centered application art. Use target foot or locked ground for ground contact, domains, and death explosions. Keep moving and sky-spawn bodies separate from their locked impact point.
-- For ground and death effects, select target foot or locked ground according to the event semantics.
+- Map each event explicitly: attached status and body-centered application art use target-body center. A visual intentionally following a target's contact point uses target foot. Fixed telegraphs, persistent zones, fixed impacts, and death-event ground points use a locked ground snapshot unless the mechanic contract explicitly defines following behavior. Keep moving and sky-spawn bodies separate from their locked impact point.
 - Use `anchorY` near `0.8-1.0` for ground eruptions and falling weapons whose tip meets the ground.
-- Keep telegraphs locked even when the target actor animates vertically.
 - Treat scale and offset as presentation-only configuration.
 
 ## Semantic-layer transitions

@@ -163,8 +163,11 @@ test('runtime integration defines a complete mechanic-visual contract', () => {
 });
 
 test('runtime anchors are selected semantically rather than universally', () => {
-  assert.match(runtimeIntegration, /target body.*target foot.*locked ground.*moving position.*sky spawn/is);
-  assert.match(runtimeIntegration, /attached.*body.*center/i);
-  assert.doesNotMatch(runtimeIntegration, /resolve monster hit effects to the visible foot anchor/i);
-  assert.match(runtimeIntegration, /ground.*death.*foot/i);
+  const anchors = runtimeIntegration.split('## Anchors')[1].split('## Semantic-layer transitions')[0];
+  assert.match(anchors, /attached status and body-centered application art.*target-body center/i);
+  assert.match(anchors, /visual intentionally following a target's contact point.*target foot/i);
+  assert.match(anchors, /fixed telegraphs, persistent zones, fixed impacts, and death-event ground points.*locked ground snapshot/i);
+  assert.match(anchors, /unless the mechanic contract explicitly defines following behavior/i);
+  assert.match(anchors, /moving and sky-spawn bodies.*separate from their locked impact point/i);
+  assert.doesNotMatch(anchors, /\b(?:all|every|always|universal)\b[\s\S]{0,120}\b(?:monster|target)\b[\s\S]{0,120}\bfoot\b/i);
 });
