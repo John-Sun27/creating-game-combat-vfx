@@ -171,3 +171,9 @@ If this Skill helps you design, produce, integrate, or validate combat VFX more 
 - **Pull Request:** Contribute validated workflow improvements, tool fixes, test cases, or documentation.
 
 A Star is never required to use this project. Try it first, then review generated resources, visual references, third-party dependencies, copyright requirements, and performance constraints before adopting it in production.
+
+## License
+
+This project is licensed under the [MIT License](LICENSE). You may use, modify, and distribute it, including in commercial projects, provided that the original copyright and license notices are retained.
+
+This project provides a combat VFX production workflow, supporting tools, and reference implementations. It does not guarantee that generated content will meet a specific project's art direction, performance budget, platform requirements, or release criteria. Users remain responsible for asset-rights review, device testing, and final acceptance.
