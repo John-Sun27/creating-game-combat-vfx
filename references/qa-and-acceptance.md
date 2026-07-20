@@ -34,6 +34,10 @@ Capture each spell at anticipation, early body, mid body, impact, and residue. F
 
 Provide a hidden debug gesture or developer-only route to a panel listing every spell. Activation must reuse the normal cast/runtime path while remaining isolated from the player's formal loadout. Support repeated single-spell playback and pause the battle while selecting an effect.
 
+## Runtime promotion gate
+
+Back up replaced runtime assets before promotion and compare approved-source and runtime hashes. Record hashes for unaffected resources and prove they remain unchanged. Exercise each effect through the GM or developer surface using the normal cast and runtime path. Run automated suites, then inspect representative simulator or device scenarios. Commit promoted assets only after the user accepts the in-game result.
+
 ## Completion report
 
 Report changed effects by archetype, asset additions, configuration fields, test commands, pass counts, and remaining device-only visual risks. Do not claim visual completion from unit tests alone; record the device or simulator capture used for the final review.

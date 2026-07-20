@@ -18,6 +18,8 @@ Use this path whenever an approved concept sheet, style frame, screenshot, or pr
 
 ### 3. Audit before expansion
 
+Regenerate audit data from the current source plates for every acceptance run. An audit-only measurement may preserve accepted PNG bytes, but its report must identify the measured input and cannot reuse stale JSON.
+
 Measure each plate and derived frame, using project-specific thresholds when available:
 
 - alpha and non-empty visible bounds;
@@ -30,6 +32,8 @@ Measure each plate and derived frame, using project-specific thresholds when ava
 Reject the source rather than hiding a failure with reduced opacity, bloom, runtime scale, atlas padding, or extra cropping.
 
 ### 4. Compare on the project stage
+
+Slice old assets with their own manifest and new assets with the new manifest; never apply a new frame count to an old sheet. Use the actual project background. Build overlap sheets from manifest display size, anchor, pivot, timing window, and opacity curve for telegraph/body, body/impact, and impact/residue contacts.
 
 Create a **comparison contact sheet** with columns for the approved design, previous runtime asset when available, and the new asset. Use the same actual project background and normalize by visible alpha bounds so transparent canvas size cannot make one version appear artificially smaller. Compare material, color hierarchy, silhouette, edge cleanliness, detail density, and exposure before preview approval.
 

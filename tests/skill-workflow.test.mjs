@@ -4,6 +4,10 @@ import fs from 'node:fs';
 
 const skill = fs.readFileSync(new URL('../SKILL.md', import.meta.url), 'utf8');
 const assetProduction = fs.readFileSync(new URL('../references/asset-production.md', import.meta.url), 'utf8');
+const qaAndAcceptance = fs.readFileSync(
+  new URL('../references/qa-and-acceptance.md', import.meta.url),
+  'utf8',
+);
 const previewWorkflow = fs.readFileSync(new URL('../references/preview-workflow.md', import.meta.url), 'utf8');
 const runtimeIntegration = fs.readFileSync(
   new URL('../references/runtime-integration.md', import.meta.url),
@@ -191,4 +195,20 @@ test('runtime anchors are selected semantically rather than universally', () => 
   ]) {
     assert.throws(() => assertSemanticAnchorGuidance(`${anchors}\n- ${universalFootRule}`));
   }
+});
+
+test('asset evidence is regenerated from authoritative current inputs', () => {
+  assert.match(assetProduction, /audit data.*current source plates/i);
+  assert.match(assetProduction, /old assets.*own manifest/i);
+  assert.match(assetProduction, /actual project background/i);
+  assert.match(assetProduction, /manifest display size.*anchor.*opacity/i);
+  assert.match(assetProduction, /telegraph.*body.*body.*impact.*impact.*residue/is);
+});
+
+test('runtime promotion protects unaffected resources and waits for acceptance', () => {
+  assert.match(qaAndAcceptance, /back up.*replaced runtime assets/i);
+  assert.match(qaAndAcceptance, /hash.*unaffected/i);
+  assert.match(qaAndAcceptance, /GM.*normal.*runtime path/i);
+  assert.match(qaAndAcceptance, /simulator or device/i);
+  assert.match(qaAndAcceptance, /commit.*after.*user accepts/i);
 });
