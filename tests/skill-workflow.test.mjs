@@ -5,6 +5,10 @@ import fs from 'node:fs';
 const skill = fs.readFileSync(new URL('../SKILL.md', import.meta.url), 'utf8');
 const assetProduction = fs.readFileSync(new URL('../references/asset-production.md', import.meta.url), 'utf8');
 const previewWorkflow = fs.readFileSync(new URL('../references/preview-workflow.md', import.meta.url), 'utf8');
+const highFidelityAgentMode = fs.readFileSync(
+  new URL('../references/high-fidelity-agent-mode.md', import.meta.url),
+  'utf8',
+);
 const readmeZh = fs.readFileSync(new URL('../README.md', import.meta.url), 'utf8');
 const readmeEn = fs.readFileSync(new URL('../README.en.md', import.meta.url), 'utf8');
 const previewScreenshot = new URL('../docs/reference-images/vfx_previewer.png', import.meta.url);
@@ -112,4 +116,34 @@ test('confirmed Agent mode preserves the selected stage scope', () => {
   assert.match(skill, /only.*stages.*user selected/i);
   assert.match(skill, /must not.*broaden.*stage/i);
   assert.match(skill, /independent Agents.*unavailable.*standard mode.*wait/i);
+});
+
+test('Agent mode decomposes current mechanics into an event graph', () => {
+  for (const phrase of [
+    'event graph',
+    'mechanical event',
+    'ordering',
+    'ownership transfer',
+    'cancellation',
+    'same-update priority',
+  ]) assert.match(highFidelityAgentMode, new RegExp(phrase, 'i'));
+  assert.match(highFidelityAgentMode, /must not inherit.*named skill/i);
+});
+
+test('Agent task packets are bounded and independently reviewed', () => {
+  for (const phrase of [
+    'visual intent', 'approved references', 'archetype', 'owner', 'anchors',
+    'layers', 'lifetime', 'frame contract', 'allowed files', 'invariants',
+    'expected evidence', 'verification commands',
+  ]) assert.match(highFidelityAgentMode, new RegExp(phrase, 'i'));
+  assert.match(highFidelityAgentMode, /production Agent/i);
+  assert.match(highFidelityAgentMode, /independent review Agent/i);
+  assert.match(highFidelityAgentMode, /Critical.*Important.*Minor/is);
+  assert.match(highFidelityAgentMode, /no Critical or Important/i);
+});
+
+test('Agent mode composes archetypes without Zhuque-specific defaults', () => {
+  assert.match(highFidelityAgentMode, /attached status.*persistent ground zone.*projectile.*falling.*chain/is);
+  assert.match(highFidelityAgentMode, /Zhuque Brand.*worked instance/i);
+  assert.match(highFidelityAgentMode, /timing.*anchor.*scale.*frame.*damage.*current mechanic contract/is);
 });
