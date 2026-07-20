@@ -32,6 +32,12 @@ Expose presentation data without changing mechanical state:
 
 Use `groundPoint` for telegraphs, impact art, and persistent zones. Use `visualPosition` for a flying or falling body. Calculate a trail from the current body and prior samples; never from the global road midpoint.
 
+## Mechanic-visual event contract
+
+Define each event with Mechanical event, Visual owner, Visual layers, Anchor, Lifetime, Frame contract, Draw order, and Exit priority. Use one visual owner for a complete silhouette at a given time. Give attached bodies, tick pulses, expiry fades, impacts, and death events independent lifecycles when their mechanics differ.
+
+For every non-looping layer, prove its terminal frame is reachable inside its lifetime. At an exact transition boundary, prevent two complete high-opacity silhouettes from coexisting. Define same update priority for hit, expiry, death, refresh, escape, and chain events that can coincide.
+
 ## Impact lifetime
 
 Record an occurrence timestamp with every impact. Compute `ageMs = now - bornAtMs`, stop drawing after the approved duration, and set one-shot sheets to `holdLast: false`. Do not repeatedly draw an accumulated array of plain coordinates.
@@ -39,7 +45,9 @@ Record an occurrence timestamp with every impact. Compute `ageMs = now - bornAtM
 ## Anchors
 
 - Use only `origin`, `target`, and `moving` in preview layer configuration. Translate project-facing names such as caster or ground into that vocabulary at export time.
-- Resolve monster hit effects to the visible foot anchor.
+- Select anchors from event semantics: caster body, target body, target foot, locked ground, moving position, or sky spawn.
+- Use target-body center for attached status and body-centered application art. Use target foot or locked ground for ground contact, domains, and death explosions. Keep moving and sky-spawn bodies separate from their locked impact point.
+- For ground and death effects, select target foot or locked ground according to the event semantics.
 - Use `anchorY` near `0.8-1.0` for ground eruptions and falling weapons whose tip meets the ground.
 - Keep telegraphs locked even when the target actor animates vertically.
 - Treat scale and offset as presentation-only configuration.

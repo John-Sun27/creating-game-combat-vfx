@@ -5,6 +5,10 @@ import fs from 'node:fs';
 const skill = fs.readFileSync(new URL('../SKILL.md', import.meta.url), 'utf8');
 const assetProduction = fs.readFileSync(new URL('../references/asset-production.md', import.meta.url), 'utf8');
 const previewWorkflow = fs.readFileSync(new URL('../references/preview-workflow.md', import.meta.url), 'utf8');
+const runtimeIntegration = fs.readFileSync(
+  new URL('../references/runtime-integration.md', import.meta.url),
+  'utf8',
+);
 const highFidelityAgentMode = fs.readFileSync(
   new URL('../references/high-fidelity-agent-mode.md', import.meta.url),
   'utf8',
@@ -146,4 +150,21 @@ test('Agent mode composes archetypes without Zhuque-specific defaults', () => {
   assert.match(highFidelityAgentMode, /attached status.*persistent ground zone.*projectile.*falling.*chain/is);
   assert.match(highFidelityAgentMode, /Zhuque Brand.*worked instance/i);
   assert.match(highFidelityAgentMode, /timing.*anchor.*scale.*frame.*damage.*current mechanic contract/is);
+});
+
+test('runtime integration defines a complete mechanic-visual contract', () => {
+  for (const phrase of [
+    'Mechanical event', 'Visual owner', 'Visual layers', 'Anchor', 'Lifetime',
+    'Frame contract', 'Draw order', 'Exit priority',
+  ]) assert.match(runtimeIntegration, new RegExp(phrase, 'i'));
+  assert.match(runtimeIntegration, /one visual owner.*complete silhouette/i);
+  assert.match(runtimeIntegration, /terminal frame.*lifetime/i);
+  assert.match(runtimeIntegration, /same update.*priority/i);
+});
+
+test('runtime anchors are selected semantically rather than universally', () => {
+  assert.match(runtimeIntegration, /target body.*target foot.*locked ground.*moving position.*sky spawn/is);
+  assert.match(runtimeIntegration, /attached.*body.*center/i);
+  assert.doesNotMatch(runtimeIntegration, /resolve monster hit effects to the visible foot anchor/i);
+  assert.match(runtimeIntegration, /ground.*death.*foot/i);
 });
